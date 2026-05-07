@@ -462,7 +462,7 @@
           <h3>Daily Call-outs</h3>
           <span class="inline-legend">
             <span><i style="background:#4B1F70"></i>Daily Call-outs</span>
-            <span><i style="background:#1F3864"></i># Completed (est. 34%)</span>
+            <span><i style="background:#F37021"></i># Completed (est. 34%)</span>
           </span>
         </div>
         <div class="chart-box"><canvas id="dailyCalloutsChart"></canvas></div>
@@ -649,9 +649,9 @@
               // legend and tooltip as "(est. 34%)".
               label: "# Completed (est. 34%)",
               data: daily.map(r => r.cumulative != null ? Math.round(r.cumulative * 0.34) : null),
-              borderColor: "#1F3864",
-              backgroundColor: "rgba(31,56,100,0.06)",
-              borderWidth: 1.5,
+              borderColor: "#F37021",
+              backgroundColor: "rgba(243,112,33,0.10)",
+              borderWidth: 2,
               pointRadius: 0,
               borderDash: [4, 4],
               tension: 0.25,
