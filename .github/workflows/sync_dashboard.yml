@@ -1,0 +1,71 @@
+name: Hollard Dashboard Sync
+
+# Reads the 6 source tabs of the Hollard AIP/SBMAC sheet, regenerates
+# docs/data/summary.json, commits + pushes. The Pages deploy workflow
+# fires automatically on the resulting docs/** push.
+
+on:
+  schedule:
+    # 03:30 UTC daily = 05:30 SAST. Source sheet is updated overnight
+    # by Hollard's data team — this gives them headroom before we read.
+    - cron: "30 3 * * *"
+
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run — read sheet only, no commit"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  actions:  write
+
+concurrency:
+  group:              hollard-main-push
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Refresh Hollard dashboard data
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Export summary data to JSON
+        timeout-minutes: 5
+        env:
+          GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: python scripts/export_summary.py
+
+      - name: Commit dashboard data
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/summary.json
+          if git diff --staged --quiet; then
+            echo "No changes — nothing to commit."
+          else
+            git commit -m "chore: refresh Hollard dashboard data"
+            git push
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "::error::Hollard dashboard sync FAILED — check logs."
