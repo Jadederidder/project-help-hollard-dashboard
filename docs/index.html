@@ -461,9 +461,8 @@
         <div class="card-head">
           <h3>Daily Call-outs</h3>
           <span class="inline-legend">
-            <span><i style="background:#4B1F70"></i>Cumulative</span>
-            <span><i style="background:#F37021"></i># Callouts</span>
-            <span><i style="background:#1F3864"></i># Completed</span>
+            <span><i style="background:#4B1F70"></i>Daily Call-outs</span>
+            <span><i style="background:#1F3864"></i># Completed (est. 34%)</span>
           </span>
         </div>
         <div class="chart-box"><canvas id="dailyCalloutsChart"></canvas></div>
@@ -630,7 +629,10 @@
           labels,
           datasets: [
             {
-              label: "Cumulative",
+              // Source col is named 'Cumulative' but it actually holds the
+              // per-day call-out count (see export_summary.py for the
+              // backstory). Re-labelled here as 'Daily Call-outs'.
+              label: "Daily Call-outs",
               data: daily.map(r => r.cumulative),
               borderColor: "#4B1F70",
               backgroundColor: "rgba(75,31,112,0.08)",
@@ -641,22 +643,17 @@
               yAxisID: "y",
             },
             {
-              label: "# Callouts",
-              data: daily.map(r => r.callouts),
-              borderColor: "#F37021",
-              backgroundColor: "rgba(243,112,33,0.10)",
-              borderWidth: 1.5,
-              pointRadius: 0,
-              tension: 0.25,
-              yAxisID: "y",
-            },
-            {
-              label: "# Completed",
-              data: daily.map(r => r.completed),
+              // Source '# Completed Callouts' col stops being populated in
+              // mid-2022; pegging at the historical ~34% completion rate
+              // gives a continuous estimate, surfaced honestly in the
+              // legend and tooltip as "(est. 34%)".
+              label: "# Completed (est. 34%)",
+              data: daily.map(r => r.cumulative != null ? Math.round(r.cumulative * 0.34) : null),
               borderColor: "#1F3864",
-              backgroundColor: "rgba(31,56,100,0.08)",
+              backgroundColor: "rgba(31,56,100,0.06)",
               borderWidth: 1.5,
               pointRadius: 0,
+              borderDash: [4, 4],
               tension: 0.25,
               yAxisID: "y",
             },
