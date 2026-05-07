@@ -1,16 +1,16 @@
 {
-  "lastUpdated": "2026-05-07T13:35:19Z",
+  "lastUpdated": "2026-05-07T14:26:30Z",
   "views": {
     "AIP": {
       "kpis": {
-        "latestMonth": "May 2026",
+        "latestMonth": "Apr 2026",
         "monthly": {
-          "usage": 250,
-          "monthlyDownloads": 301,
-          "activeApps": 6916
+          "usage": 278,
+          "monthlyDownloads": 298,
+          "activeApps": 6908
         },
         "allTime": {
-          "cumulativeDownloads": 17457,
+          "cumulativeDownloads": 17156,
           "cumulativeCallouts": 18347,
           "totalPanics": 2598
         }
@@ -783,2240 +783,2228 @@
           "downloadsToBasePct": 28.26,
           "usage": 278,
           "usagePerDownloadsPct": 1.14
-        },
-        {
-          "month": "May 2026",
-          "monthSort": "2026-05",
-          "monthlyDownloads": 301,
-          "activeCustomers": 6916,
-          "totalDownloads": 301,
-          "adoptionPct": 35.75,
-          "baseSize": 24743,
-          "downloadsToBasePct": 27.95,
-          "usage": 250,
-          "usagePerDownloadsPct": 1.01
         }
       ],
       "daily": [
         {
           "date": "2021-08-01",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2021-08-02",
           "cumulative": 8,
-          "callouts": 8,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-03",
           "cumulative": 6,
-          "callouts": 6,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-08-04",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-08-05",
           "cumulative": 43,
-          "callouts": 43,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2021-08-06",
           "cumulative": 14,
-          "callouts": 14,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-07",
           "cumulative": 5,
-          "callouts": 5,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-08-08",
           "cumulative": 5,
-          "callouts": 5,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-09",
           "cumulative": 4,
-          "callouts": 4,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-10",
           "cumulative": 12,
-          "callouts": 12,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-11",
           "cumulative": 7,
-          "callouts": 7,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-12",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-08-13",
           "cumulative": 15,
-          "callouts": 15,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2021-08-14",
           "cumulative": 4,
-          "callouts": 4,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-15",
           "cumulative": 5,
-          "callouts": 5,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-16",
           "cumulative": 8,
-          "callouts": 8,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-17",
           "cumulative": 10,
-          "callouts": 10,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-18",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-08-19",
           "cumulative": 7,
-          "callouts": 7,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-20",
           "cumulative": 16,
-          "callouts": 16,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-21",
           "cumulative": 8,
-          "callouts": 8,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-22",
           "cumulative": 6,
-          "callouts": 6,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-23",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-08-24",
           "cumulative": 7,
-          "callouts": 7,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-25",
           "cumulative": 9,
-          "callouts": 9,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-26",
           "cumulative": 7,
-          "callouts": 7,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-27",
           "cumulative": 8,
-          "callouts": 8,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-28",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-08-29",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-08-30",
           "cumulative": 7,
-          "callouts": 7,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-31",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-10-01",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-10-02",
           "cumulative": 3,
-          "callouts": 3,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-10-03",
           "cumulative": 4,
-          "callouts": 4,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-10-04",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-10-05",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-10-06",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-10-07",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-10-08",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-10-09",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-10-10",
           "cumulative": 5,
-          "callouts": 5,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-10-11",
           "cumulative": 9,
-          "callouts": 9,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-10-12",
           "cumulative": 14,
-          "callouts": 14,
-          "completed": 6
+          "callouts": 6,
+          "completed": null
         },
         {
           "date": "2021-10-13",
           "cumulative": 9,
-          "callouts": 9,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-10-14",
           "cumulative": 25,
-          "callouts": 25,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-10-15",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-10-16",
           "cumulative": 5,
-          "callouts": 5,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-10-17",
           "cumulative": 2,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-10-18",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-10-19",
           "cumulative": 10,
-          "callouts": 10,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-10-20",
           "cumulative": 10,
-          "callouts": 10,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-10-21",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-10-22",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-10-23",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-10-24",
           "cumulative": 2,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-10-25",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-10-26",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-10-27",
           "cumulative": 25,
-          "callouts": 25,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-10-28",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-10-29",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2021-10-30",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-10-31",
           "cumulative": 6,
-          "callouts": 6,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2021-11-01",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-11-02",
           "cumulative": 11,
-          "callouts": 11,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-11-03",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-04",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-05",
           "cumulative": 3,
-          "callouts": 3,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-11-06",
           "cumulative": 1,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-11-07",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-11-08",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-09",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-11-10",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-11",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-11-12",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-13",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-14",
           "cumulative": 23,
-          "callouts": 23,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2021-11-15",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-11-16",
           "cumulative": 9,
-          "callouts": 9,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-11-17",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-11-18",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2021-11-19",
           "cumulative": 6,
-          "callouts": 6,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-20",
           "cumulative": 3,
-          "callouts": 3,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-11-21",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-22",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-11-23",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-24",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-25",
           "cumulative": 6,
-          "callouts": 6,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-26",
           "cumulative": 17,
-          "callouts": 17,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-11-27",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-11-28",
           "cumulative": 5,
-          "callouts": 5,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-11-29",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-30",
           "cumulative": 21,
-          "callouts": 21,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2021-12-01",
           "cumulative": 19,
-          "callouts": 19,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-12-02",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-12-03",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-12-04",
           "cumulative": 6,
-          "callouts": 6,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2021-12-05",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2021-12-06",
           "cumulative": 10,
-          "callouts": 10,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-12-07",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-12-08",
           "cumulative": 19,
-          "callouts": 19,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-12-09",
           "cumulative": 22,
-          "callouts": 22,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-12-10",
           "cumulative": 18,
-          "callouts": 18,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-12-11",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-12-12",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 5
+          "callouts": 5,
+          "completed": null
         },
         {
           "date": "2021-12-13",
           "cumulative": 15,
-          "callouts": 15,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2021-12-14",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2021-12-15",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-12-16",
           "cumulative": 1,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-12-17",
           "cumulative": 19,
-          "callouts": 19,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2021-12-18",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-12-19",
           "cumulative": 3,
-          "callouts": 3,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-12-20",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-12-21",
           "cumulative": 18,
-          "callouts": 18,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2021-12-22",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 5
+          "callouts": 5,
+          "completed": null
         },
         {
           "date": "2021-12-23",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2021-12-24",
           "cumulative": 4,
-          "callouts": 4,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-12-25",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2021-12-26",
           "cumulative": 6,
-          "callouts": 6,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-12-27",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2021-12-28",
           "cumulative": 5,
-          "callouts": 5,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-12-29",
           "cumulative": 5,
-          "callouts": 5,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-12-30",
           "cumulative": 4,
-          "callouts": 4,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-12-31",
           "cumulative": 4,
-          "callouts": 4,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-01-01",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-01-02",
           "cumulative": 2,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-01-03",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-01-04",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-01-05",
           "cumulative": 13,
-          "callouts": 13,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-01-06",
           "cumulative": 7,
-          "callouts": 7,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-01-07",
           "cumulative": 19,
-          "callouts": 19,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-01-08",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-01-09",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-01-10",
           "cumulative": 22,
-          "callouts": 22,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-01-11",
           "cumulative": 18,
-          "callouts": 18,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-01-12",
           "cumulative": 20,
-          "callouts": 20,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-01-13",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-01-14",
           "cumulative": 18,
-          "callouts": 18,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-01-15",
           "cumulative": 12,
-          "callouts": 12,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-01-16",
           "cumulative": 3,
-          "callouts": 3,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-01-17",
           "cumulative": 22,
-          "callouts": 22,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-01-18",
           "cumulative": 12,
-          "callouts": 12,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-01-19",
           "cumulative": 15,
-          "callouts": 15,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-01-20",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-01-21",
           "cumulative": 16,
-          "callouts": 16,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-01-22",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-01-23",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-01-24",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-01-25",
           "cumulative": 14,
-          "callouts": 14,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-01-26",
           "cumulative": 21,
-          "callouts": 21,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-01-27",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-01-28",
           "cumulative": 28,
-          "callouts": 28,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-01-29",
           "cumulative": 16,
-          "callouts": 16,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-01-30",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-01-31",
           "cumulative": 16,
-          "callouts": 16,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-02-01",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-02-02",
           "cumulative": 16,
-          "callouts": 16,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-02-03",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-02-04",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-02-05",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-02-06",
           "cumulative": 4,
-          "callouts": 4,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-02-07",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-02-08",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-02-09",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-02-10",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-02-11",
           "cumulative": 16,
-          "callouts": 16,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-02-12",
           "cumulative": 4,
-          "callouts": 4,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-02-13",
           "cumulative": 5,
-          "callouts": 5,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-02-14",
           "cumulative": 18,
-          "callouts": 18,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-02-15",
           "cumulative": 4,
-          "callouts": 4,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-02-16",
           "cumulative": 22,
-          "callouts": 22,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-02-17",
           "cumulative": 15,
-          "callouts": 15,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-02-18",
           "cumulative": 23,
-          "callouts": 23,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-02-19",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-02-20",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-02-21",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-02-22",
           "cumulative": 18,
-          "callouts": 18,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-02-23",
           "cumulative": 23,
-          "callouts": 23,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-02-24",
           "cumulative": 11,
-          "callouts": 11,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-02-25",
           "cumulative": 10,
-          "callouts": 10,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-02-26",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-02-27",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-02-28",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-01",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-03-02",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-03",
           "cumulative": 18,
-          "callouts": 18,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-03-04",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-05",
           "cumulative": 14,
-          "callouts": 14,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-03-06",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-07",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-08",
           "cumulative": 14,
-          "callouts": 14,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-03-09",
           "cumulative": 14,
-          "callouts": 14,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-03-10",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-11",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-12",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-03-13",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-14",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-03-15",
           "cumulative": 30,
-          "callouts": 30,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-03-16",
           "cumulative": 18,
-          "callouts": 18,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-03-17",
           "cumulative": 10,
-          "callouts": 10,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-03-18",
           "cumulative": 16,
-          "callouts": 16,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-03-19",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-20",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-03-21",
           "cumulative": 5,
-          "callouts": 5,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-03-22",
           "cumulative": 15,
-          "callouts": 15,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-03-23",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-03-24",
           "cumulative": 18,
-          "callouts": 18,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-03-25",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-03-26",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-27",
           "cumulative": 27,
-          "callouts": 27,
-          "completed": 8
+          "callouts": 8,
+          "completed": null
         },
         {
           "date": "2022-03-28",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-03-29",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-30",
           "cumulative": 19,
-          "callouts": 19,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-31",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 6
+          "callouts": 6,
+          "completed": null
         },
         {
           "date": "2022-04-01",
           "cumulative": 14,
-          "callouts": 14,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-04-02",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-04-03",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-04",
           "cumulative": 15,
-          "callouts": 15,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-04-05",
           "cumulative": 15,
-          "callouts": 15,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-06",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-07",
           "cumulative": 15,
-          "callouts": 15,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-08",
           "cumulative": 20,
-          "callouts": 20,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-09",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-10",
           "cumulative": 8,
-          "callouts": 8,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-04-11",
           "cumulative": 19,
-          "callouts": 19,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-04-12",
           "cumulative": 16,
-          "callouts": 16,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-04-13",
           "cumulative": 19,
-          "callouts": 19,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-04-14",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-04-15",
           "cumulative": 4,
-          "callouts": 4,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-16",
           "cumulative": 9,
-          "callouts": 9,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-04-17",
           "cumulative": 6,
-          "callouts": 6,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-04-18",
           "cumulative": 8,
-          "callouts": 8,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-04-19",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-20",
           "cumulative": 22,
-          "callouts": 22,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-04-21",
           "cumulative": 19,
-          "callouts": 19,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-22",
           "cumulative": 25,
-          "callouts": 25,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-23",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-24",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-04-25",
           "cumulative": 16,
-          "callouts": 16,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-04-26",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-04-27",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-04-28",
           "cumulative": 9,
-          "callouts": 9,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-04-29",
           "cumulative": 18,
-          "callouts": 18,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-30",
           "cumulative": 18,
-          "callouts": 18,
-          "completed": 6
+          "callouts": 6,
+          "completed": null
         },
         {
           "date": "2022-05-01",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-02",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-05-03",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-04",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-05",
           "cumulative": 14,
-          "callouts": 14,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-06",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-05-07",
           "cumulative": 15,
-          "callouts": 15,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-08",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-09",
           "cumulative": 17,
-          "callouts": 17,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-10",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-11",
           "cumulative": 13,
-          "callouts": 13,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-05-12",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-13",
           "cumulative": 18,
-          "callouts": 18,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-14",
           "cumulative": 18,
-          "callouts": 18,
-          "completed": 5
+          "callouts": 5,
+          "completed": null
         },
         {
           "date": "2022-05-15",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-16",
           "cumulative": 6,
-          "callouts": 6,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-17",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-05-18",
           "cumulative": 19,
-          "callouts": 19,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-19",
           "cumulative": 6,
-          "callouts": 6,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-20",
           "cumulative": 29,
-          "callouts": 29,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-21",
           "cumulative": 6,
-          "callouts": 6,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-22",
           "cumulative": 14,
-          "callouts": 14,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-05-23",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-24",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-25",
           "cumulative": 12,
-          "callouts": 12,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-05-26",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-27",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-28",
           "cumulative": 15,
-          "callouts": 15,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-05-29",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-05-30",
           "cumulative": 8,
-          "callouts": 8,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-05-31",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-06-01",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-02",
           "cumulative": 10,
-          "callouts": 10,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-06-03",
           "cumulative": 16,
-          "callouts": 6,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-06-04",
           "cumulative": 23,
-          "callouts": 23,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-05",
           "cumulative": 14,
-          "callouts": 4,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-06",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-06-07",
           "cumulative": 19,
-          "callouts": 9,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-08",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-09",
           "cumulative": 13,
-          "callouts": 3,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-06-10",
           "cumulative": 6,
-          "callouts": 6,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-06-11",
           "cumulative": 14,
-          "callouts": 4,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-06-12",
           "cumulative": 5,
-          "callouts": 5,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-13",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-06-14",
           "cumulative": 10,
-          "callouts": 10,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-06-15",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-16",
           "cumulative": 15,
-          "callouts": 5,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-06-17",
           "cumulative": 8,
-          "callouts": 8,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-06-18",
           "cumulative": 16,
-          "callouts": 6,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-06-19",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-20",
           "cumulative": 17,
-          "callouts": 7,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-06-21",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-22",
           "cumulative": 15,
-          "callouts": 5,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-06-23",
           "cumulative": 9,
-          "callouts": 9,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-06-24",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-06-25",
           "cumulative": 20,
-          "callouts": 20,
-          "completed": 9
+          "callouts": 9,
+          "completed": null
         },
         {
           "date": "2022-06-26",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 5
+          "callouts": 5,
+          "completed": null
         },
         {
           "date": "2022-06-27",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-06-28",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-29",
           "cumulative": 13,
-          "callouts": 3,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-06-30",
           "cumulative": 14,
-          "callouts": 14,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-07-01",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-07-02",
           "cumulative": 13,
-          "callouts": 3,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-07-03",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-07-04",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-07-05",
           "cumulative": 17,
-          "callouts": 7,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-07-06",
           "cumulative": 14,
-          "callouts": 4,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-07-07",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-07-08",
           "cumulative": 17,
-          "callouts": 7,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-07-09",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-07-10",
           "cumulative": 6,
-          "callouts": 6,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-07-11",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-07-12",
           "cumulative": 8,
-          "callouts": 8,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-07-13",
           "cumulative": 17,
-          "callouts": 7,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-07-14",
           "cumulative": 14,
-          "callouts": 14,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-07-15",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-07-16",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-07-17",
           "cumulative": 13,
-          "callouts": 13,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-07-18",
           "cumulative": 15,
-          "callouts": 5,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-07-19",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-07-20",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-07-21",
           "cumulative": 13,
-          "callouts": 3,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-07-22",
           "cumulative": 7,
-          "callouts": 7,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-07-23",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-07-24",
           "cumulative": 3,
-          "callouts": 3,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-07-25",
           "cumulative": 12,
-          "callouts": 12,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-07-26",
           "cumulative": 15,
-          "callouts": 5,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-07-27",
           "cumulative": 12,
-          "callouts": 2,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-07-28",
           "cumulative": 7,
-          "callouts": 7,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-07-29",
           "cumulative": 10,
-          "callouts": 10,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-07-30",
           "cumulative": 15,
-          "callouts": 5,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-07-31",
           "cumulative": 11,
-          "callouts": 11,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-08-01",
           "cumulative": 14,
-          "callouts": 7,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-08-02",
           "cumulative": 24,
-          "callouts": 12,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-08-03",
           "cumulative": 10,
-          "callouts": 5,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-08-04",
           "cumulative": 10,
-          "callouts": 5,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-08-05",
           "cumulative": 14,
-          "callouts": 7,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-06",
           "cumulative": 14,
-          "callouts": 4,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-08-07",
           "cumulative": 10,
-          "callouts": 5,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-08-08",
           "cumulative": 16,
-          "callouts": 4,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-09",
           "cumulative": 12,
-          "callouts": 6,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-08-10",
           "cumulative": 16,
-          "callouts": 8,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-11",
           "cumulative": 18,
-          "callouts": 9,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-12",
           "cumulative": 14,
-          "callouts": 7,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-08-13",
           "cumulative": 12,
-          "callouts": 6,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-08-14",
           "cumulative": 12,
-          "callouts": 6,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-08-15",
           "cumulative": 8,
-          "callouts": 4,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-08-16",
           "cumulative": 10,
-          "callouts": 5,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-08-17",
           "cumulative": 18,
-          "callouts": 9,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-08-18",
           "cumulative": 22,
-          "callouts": 11,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-19",
           "cumulative": 14,
-          "callouts": 7,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-08-20",
           "cumulative": 12,
-          "callouts": 6,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-08-21",
           "cumulative": 6,
-          "callouts": 2,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-08-22",
           "cumulative": 10,
-          "callouts": 5,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-08-23",
           "cumulative": 12,
-          "callouts": 6,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-24",
           "cumulative": 20,
-          "callouts": 10,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-25",
           "cumulative": 14,
-          "callouts": 7,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-08-26",
           "cumulative": 10,
-          "callouts": 5,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-08-27",
           "cumulative": 9,
-          "callouts": 3,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-08-28",
           "cumulative": 10,
-          "callouts": 5,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-29",
           "cumulative": 12,
-          "callouts": 5,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-08-30",
           "cumulative": 16,
-          "callouts": 8,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-31",
           "cumulative": 21,
-          "callouts": 10,
-          "completed": 5
+          "callouts": 5,
+          "completed": null
         },
         {
           "date": "2022-09-01",
           "cumulative": 23,
-          "callouts": 6,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-09-02",
           "cumulative": 20,
-          "callouts": 5,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-09-03",
           "cumulative": 18,
-          "callouts": 4,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-09-04",
           "cumulative": 12,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-09-05",
@@ -21456,14 +21444,14 @@
     },
     "SBMAC": {
       "kpis": {
-        "latestMonth": "May 2026",
+        "latestMonth": "Apr 2026",
         "monthly": {
-          "usage": 195,
-          "monthlyDownloads": 125,
-          "activeApps": 3305
+          "usage": 201,
+          "monthlyDownloads": 120,
+          "activeApps": 3281
         },
         "allTime": {
-          "cumulativeDownloads": 8168,
+          "cumulativeDownloads": 8043,
           "cumulativeCallouts": 12873,
           "totalPanics": 1139
         }
@@ -22224,18 +22212,6 @@
           "downloadsToBasePct": 31.61,
           "usage": 201,
           "usagePerDownloadsPct": 1.94
-        },
-        {
-          "month": "May 2026",
-          "monthSort": "2026-05",
-          "monthlyDownloads": 125,
-          "activeCustomers": 3305,
-          "totalDownloads": 125,
-          "adoptionPct": 46.02,
-          "baseSize": 10481,
-          "downloadsToBasePct": 31.53,
-          "usage": 195,
-          "usagePerDownloadsPct": 1.86
         }
       ],
       "daily": [
@@ -22243,85 +22219,85 @@
           "date": "2021-08-04",
           "cumulative": 2,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2021-08-05",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-08-06",
           "cumulative": 1,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-07",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-08-08",
           "cumulative": 2,
-          "callouts": 2,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-09",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-08-10",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-08-11",
           "cumulative": 1,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-12",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-08-13",
           "cumulative": 1,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-08-14",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-08-15",
           "cumulative": 2,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-08-16",
           "cumulative": 2,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2021-08-17",
           "cumulative": 2,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-08-18",
@@ -22404,7 +22380,7 @@
         {
           "date": "2021-09-01",
           "cumulative": 2,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
@@ -22525,66 +22501,66 @@
           "date": "2021-09-21",
           "cumulative": 2,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-09-22",
           "cumulative": 3,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-09-23",
           "cumulative": 4,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-09-24",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-09-25",
           "cumulative": 3,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-09-26",
           "cumulative": 4,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-09-27",
           "cumulative": 0,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-09-28",
           "cumulative": 6,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-09-29",
           "cumulative": 3,
-          "callouts": 3,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-09-30",
           "cumulative": 4,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-10-01",
           "cumulative": 2,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
@@ -22662,38 +22638,38 @@
         {
           "date": "2021-10-13",
           "cumulative": 2,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-10-14",
           "cumulative": 5,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-10-15",
           "cumulative": 3,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-10-16",
           "cumulative": 4,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-10-17",
           "cumulative": 2,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2021-10-18",
           "cumulative": 5,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-10-19",
@@ -22759,97 +22735,97 @@
           "date": "2021-10-29",
           "cumulative": 4,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-10-30",
           "cumulative": 3,
           "callouts": 3,
-          "completed": 3
+          "completed": null
         },
         {
           "date": "2021-10-31",
           "cumulative": 2,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-01",
           "cumulative": 5,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2021-11-02",
           "cumulative": 4,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-11-03",
           "cumulative": 3,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-04",
           "cumulative": 4,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-11-05",
           "cumulative": 5,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-06",
           "cumulative": 0,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2021-11-07",
           "cumulative": 5,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-11-08",
           "cumulative": 8,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-11-09",
           "cumulative": 4,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-11-10",
           "cumulative": 3,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-11-11",
           "cumulative": 2,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-11-12",
           "cumulative": 3,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-11-13",
           "cumulative": 4,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-11-14",
@@ -22956,134 +22932,134 @@
         {
           "date": "2021-12-01",
           "cumulative": 7,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-12-02",
           "cumulative": 6,
-          "callouts": 4,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-12-03",
           "cumulative": 7,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-12-04",
           "cumulative": 6,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-12-05",
           "cumulative": 9,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2021-12-06",
           "cumulative": 6,
           "callouts": 4,
-          "completed": 4
+          "completed": null
         },
         {
           "date": "2021-12-07",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-12-08",
           "cumulative": 6,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-12-09",
           "cumulative": 7,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-12-10",
           "cumulative": 8,
           "callouts": 3,
-          "completed": 3
+          "completed": null
         },
         {
           "date": "2021-12-11",
           "cumulative": 9,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-12-12",
           "cumulative": 7,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-12-13",
           "cumulative": 6,
-          "callouts": 4,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2021-12-14",
           "cumulative": 6,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-12-15",
           "cumulative": 5,
-          "callouts": 2,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-12-16",
           "cumulative": 5,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-12-17",
           "cumulative": 5,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-12-18",
           "cumulative": 7,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-12-19",
           "cumulative": 2,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-12-20",
           "cumulative": 11,
-          "callouts": 2,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2021-12-21",
           "cumulative": 9,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-12-22",
           "cumulative": 8,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2021-12-23",
@@ -23143,120 +23119,120 @@
           "date": "2022-01-01",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-01-02",
           "cumulative": 2,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-01-03",
           "cumulative": 6,
           "callouts": 3,
-          "completed": 3
+          "completed": null
         },
         {
           "date": "2022-01-04",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-01-05",
           "cumulative": 3,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-01-06",
           "cumulative": 3,
-          "callouts": 3,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-01-07",
           "cumulative": 3,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-01-08",
           "cumulative": 2,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-01-09",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-01-10",
           "cumulative": 4,
-          "callouts": 4,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-01-11",
           "cumulative": 2,
-          "callouts": 2,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-01-12",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-01-13",
           "cumulative": 2,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-01-14",
           "cumulative": 3,
           "callouts": 3,
-          "completed": 3
+          "completed": null
         },
         {
           "date": "2022-01-15",
           "cumulative": 4,
-          "callouts": 4,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-01-16",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-01-17",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-01-18",
           "cumulative": 2,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-01-19",
           "cumulative": 4,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-01-20",
           "cumulative": 4,
-          "callouts": 2,
+          "callouts": null,
           "completed": null
         },
         {
@@ -23329,139 +23305,139 @@
           "date": "2022-02-01",
           "cumulative": 10,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-02-02",
           "cumulative": 6,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-02-03",
           "cumulative": 17,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-02-04",
           "cumulative": 8,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-02-05",
           "cumulative": 15,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-02-06",
           "cumulative": 6,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-02-07",
           "cumulative": 17,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-02-08",
           "cumulative": 10,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-02-09",
           "cumulative": 16,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-02-10",
           "cumulative": 18,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-02-12",
           "cumulative": 15,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-02-15",
           "cumulative": 11,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-02-16",
           "cumulative": 16,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-02-18",
           "cumulative": 15,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-02-20",
           "cumulative": 7,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-02-21",
           "cumulative": 9,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-02-24",
           "cumulative": 15,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-02-25",
           "cumulative": 14,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-02-26",
           "cumulative": 8,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-02-27",
           "cumulative": 9,
-          "callouts": 4,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-02-28",
           "cumulative": 11,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-03-01",
           "cumulative": 12,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-03-02",
           "cumulative": 10,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-03-03",
@@ -23496,127 +23472,127 @@
         {
           "date": "2022-03-08",
           "cumulative": 6,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-09",
           "cumulative": 7,
           "callouts": 3,
-          "completed": 3
+          "completed": null
         },
         {
           "date": "2022-03-10",
           "cumulative": 12,
-          "callouts": 2,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-03-11",
           "cumulative": 12,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-12",
           "cumulative": 29,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-03-13",
           "cumulative": 26,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-03-14",
           "cumulative": 13,
-          "callouts": 3,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-03-15",
           "cumulative": 21,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-03-16",
           "cumulative": 23,
           "callouts": 3,
-          "completed": 3
+          "completed": null
         },
         {
           "date": "2022-03-17",
           "cumulative": 21,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-03-18",
           "cumulative": 22,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-03-19",
           "cumulative": 19,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-03-20",
           "cumulative": 20,
-          "callouts": 2,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-03-21",
           "cumulative": 28,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-03-22",
           "cumulative": 17,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-03-23",
           "cumulative": 18,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-03-24",
           "cumulative": 23,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-03-25",
           "cumulative": 25,
-          "callouts": 5,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-26",
           "cumulative": 14,
-          "callouts": 4,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-03-27",
           "cumulative": 12,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-03-28",
           "cumulative": 11,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
@@ -23635,7 +23611,7 @@
           "date": "2022-03-31",
           "cumulative": 21,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-04-01",
@@ -23647,24 +23623,24 @@
           "date": "2022-04-02",
           "cumulative": 13,
           "callouts": 4,
-          "completed": 4
+          "completed": null
         },
         {
           "date": "2022-04-03",
           "cumulative": 8,
-          "callouts": 4,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-04",
           "cumulative": 7,
-          "callouts": 5,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-04-05",
           "cumulative": 1,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
@@ -23677,757 +23653,757 @@
           "date": "2022-04-07",
           "cumulative": 8,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-04-08",
           "cumulative": 2,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-04-09",
           "cumulative": 11,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-04-10",
           "cumulative": 8,
-          "callouts": 10,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-11",
           "cumulative": 13,
-          "callouts": 4,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-04-12",
           "cumulative": 6,
-          "callouts": 6,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-04-13",
           "cumulative": 13,
-          "callouts": 3,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-04-14",
           "cumulative": 6,
-          "callouts": 6,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-04-15",
           "cumulative": 10,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-04-16",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-04-17",
           "cumulative": 9,
-          "callouts": 6,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-04-18",
           "cumulative": 8,
-          "callouts": 5,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-19",
           "cumulative": 12,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-04-21",
           "cumulative": 13,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-04-22",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 5
+          "callouts": 5,
+          "completed": null
         },
         {
           "date": "2022-04-23",
           "cumulative": 8,
-          "callouts": 3,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-04-24",
           "cumulative": 9,
           "callouts": 3,
-          "completed": 3
+          "completed": null
         },
         {
           "date": "2022-04-25",
           "cumulative": 9,
-          "callouts": 4,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-04-26",
           "cumulative": 8,
-          "callouts": 8,
-          "completed": 5
+          "callouts": 5,
+          "completed": null
         },
         {
           "date": "2022-04-27",
           "cumulative": 8,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-04-28",
           "cumulative": 11,
-          "callouts": 6,
-          "completed": 5
+          "callouts": 5,
+          "completed": null
         },
         {
           "date": "2022-04-29",
           "cumulative": 10,
-          "callouts": 8,
-          "completed": 5
+          "callouts": 5,
+          "completed": null
         },
         {
           "date": "2022-04-30",
           "cumulative": 9,
-          "callouts": 3,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-01",
           "cumulative": 8,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-02",
           "cumulative": 11,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-05-03",
           "cumulative": 3,
-          "callouts": 3,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-05-05",
           "cumulative": 10,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-06",
           "cumulative": 3,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-07",
           "cumulative": 9,
-          "callouts": 4,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-05-08",
           "cumulative": 3,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-09",
           "cumulative": 5,
-          "callouts": 5,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-05-10",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-05-11",
           "cumulative": 11,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-05-12",
           "cumulative": 12,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-13",
           "cumulative": 4,
-          "callouts": 4,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-14",
           "cumulative": 8,
-          "callouts": 4,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-05-15",
           "cumulative": 4,
-          "callouts": 4,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-16",
           "cumulative": 8,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-17",
           "cumulative": 2,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-05-19",
           "cumulative": 9,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-05-20",
           "cumulative": 1,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-05-21",
           "cumulative": 13,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-22",
           "cumulative": 2,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-05-23",
           "cumulative": 12,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-24",
           "cumulative": 4,
-          "callouts": 4,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-05-25",
           "cumulative": 11,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-05-26",
           "cumulative": 3,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-27",
           "cumulative": 11,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-05-28",
           "cumulative": 3,
           "callouts": 3,
-          "completed": 3
+          "completed": null
         },
         {
           "date": "2022-05-29",
           "cumulative": 13,
-          "callouts": 3,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-05-30",
           "cumulative": 4,
-          "callouts": 4,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-05-31",
           "cumulative": 13,
           "callouts": 3,
-          "completed": 3
+          "completed": null
         },
         {
           "date": "2022-06-01",
           "cumulative": 8,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-02",
           "cumulative": 10,
-          "callouts": 5,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-06-03",
           "cumulative": 7,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-06-04",
           "cumulative": 10,
-          "callouts": 5,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-06-05",
           "cumulative": 12,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-06-06",
           "cumulative": 6,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-06-07",
           "cumulative": 13,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-09",
           "cumulative": 9,
-          "callouts": 4,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-06-10",
           "cumulative": 10,
-          "callouts": 5,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-12",
           "cumulative": 7,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-06-14",
           "cumulative": 6,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-06-15",
           "cumulative": 7,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-06-16",
           "cumulative": 7,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-06-17",
           "cumulative": 4,
-          "callouts": 4,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-18",
           "cumulative": 7,
-          "callouts": 2,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-06-19",
           "cumulative": 10,
-          "callouts": 5,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-06-21",
           "cumulative": 8,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-22",
           "cumulative": 6,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-06-23",
           "cumulative": 7,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-06-24",
           "cumulative": 6,
-          "callouts": 6,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-06-25",
           "cumulative": 8,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-06-26",
           "cumulative": 10,
-          "callouts": 14,
-          "completed": 7
+          "callouts": 7,
+          "completed": null
         },
         {
           "date": "2022-06-27",
           "cumulative": 9,
-          "callouts": 9,
-          "completed": 6
+          "callouts": 6,
+          "completed": null
         },
         {
           "date": "2022-06-28",
           "cumulative": 5,
-          "callouts": 5,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-06-29",
           "cumulative": 2,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-06-30",
           "cumulative": 2,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-07-01",
           "cumulative": 16,
-          "callouts": 3,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-07-02",
           "cumulative": 5,
-          "callouts": 5,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-07-03",
           "cumulative": 15,
-          "callouts": 5,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-07-04",
           "cumulative": 3,
           "callouts": 3,
-          "completed": 3
+          "completed": null
         },
         {
           "date": "2022-07-05",
           "cumulative": 13,
-          "callouts": 3,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-07-06",
           "cumulative": 12,
-          "callouts": 2,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-07-07",
           "cumulative": 12,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-07-08",
           "cumulative": 16,
-          "callouts": 6,
-          "completed": 4
+          "callouts": 4,
+          "completed": null
         },
         {
           "date": "2022-07-09",
           "cumulative": 13,
-          "callouts": 3,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-07-10",
           "cumulative": 6,
-          "callouts": 6,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-07-12",
           "cumulative": 15,
-          "callouts": 5,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-07-14",
           "cumulative": 3,
           "callouts": 3,
-          "completed": 3
+          "completed": null
         },
         {
           "date": "2022-07-15",
           "cumulative": 4,
-          "callouts": 2,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-07-16",
           "cumulative": 11,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-07-18",
           "cumulative": 13,
-          "callouts": 3,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-07-19",
           "cumulative": 12,
-          "callouts": 2,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-07-20",
           "cumulative": 14,
-          "callouts": 4,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-07-21",
           "cumulative": 11,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-07-22",
           "cumulative": 10,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-07-24",
           "cumulative": 10,
-          "callouts": 1,
+          "callouts": null,
           "completed": null
         },
         {
           "date": "2022-07-25",
           "cumulative": 13,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-07-28",
           "cumulative": 11,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-07-29",
           "cumulative": 12,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-07-30",
           "cumulative": 13,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-07-31",
           "cumulative": 12,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-08-01",
           "cumulative": 7,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-08-02",
           "cumulative": 8,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-08-03",
           "cumulative": 9,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-08-04",
           "cumulative": 7,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-08-05",
           "cumulative": 8,
-          "callouts": 3,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-06",
           "cumulative": 9,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-07",
           "cumulative": 5,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-08",
           "cumulative": 6,
           "callouts": 4,
-          "completed": 4
+          "completed": null
         },
         {
           "date": "2022-08-09",
           "cumulative": 9,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-08-10",
           "cumulative": 8,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-08-11",
           "cumulative": 7,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-08-13",
           "cumulative": 11,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-08-14",
           "cumulative": 12,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-15",
           "cumulative": 10,
-          "callouts": 2,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-16",
           "cumulative": 8,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-08-17",
           "cumulative": 7,
           "callouts": 3,
-          "completed": 3
+          "completed": null
         },
         {
           "date": "2022-08-18",
           "cumulative": 9,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-08-19",
           "cumulative": 6,
-          "callouts": 3,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-20",
           "cumulative": 6,
           "callouts": 2,
-          "completed": 2
+          "completed": null
         },
         {
           "date": "2022-08-23",
           "cumulative": 13,
-          "callouts": 3,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-26",
           "cumulative": 8,
-          "callouts": 6,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-27",
           "cumulative": 8,
-          "callouts": 5,
-          "completed": 3
+          "callouts": 3,
+          "completed": null
         },
         {
           "date": "2022-08-28",
           "cumulative": 11,
-          "callouts": 3,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-08-29",
@@ -24457,19 +24433,19 @@
           "date": "2022-09-02",
           "cumulative": 5,
           "callouts": 1,
-          "completed": 1
+          "completed": null
         },
         {
           "date": "2022-09-03",
           "cumulative": 13,
-          "callouts": 3,
-          "completed": 2
+          "callouts": 2,
+          "completed": null
         },
         {
           "date": "2022-09-04",
           "cumulative": 16,
-          "callouts": 3,
-          "completed": 1
+          "callouts": 1,
+          "completed": null
         },
         {
           "date": "2022-09-05",
@@ -37260,13 +37236,6 @@
       "monthSort": "2026-04",
       "calls": 5,
       "valid": 2,
-      "nonValid": 3
-    },
-    {
-      "month": "May 2026",
-      "monthSort": "2026-05",
-      "calls": 6,
-      "valid": 3,
       "nonValid": 3
     }
   ]
