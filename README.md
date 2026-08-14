@@ -5,7 +5,7 @@ Public dashboard for the Hollard **AIP** and **SBMAC** help-app programmes.
 - Live dashboard: GitHub Pages (after first push)
 - Source sheet: `Hollard AIP SBMAC_Download Figures` (sheet ID `1O8VmhNwnGdvjzweNZQDEls2ZzRXP0CdlPxyLyh6C_TY`)
 - Refresh cadence: daily, 05:30 SAST (`.github/workflows/sync_dashboard.yml`)
-- Monthly pre-population: 05:10 SAST on the 1st (`.github/workflows/prepopulate_month.yml`) — appends a predicted row for the new month to `AIP Stats`, `SBMAC Stats` and `RAF Claims`
+- Monthly pre-population: 05:10 SAST on the 1st (`.github/workflows/prepopulate_month.yml`) — appends a predicted row for the month that just ended (1 Oct adds Sep) to `AIP Stats`, `SBMAC Stats` and `RAF Claims`, then triggers the dashboard sync
 
 ## Layout
 
@@ -50,8 +50,8 @@ python3 -m http.server 8766 --directory docs
 
 ## Monthly pre-population
 
-`scripts/prepopulate_month.py` appends a row for each month missing up to the
-current month (SAST) in the three monthly tabs:
+`scripts/prepopulate_month.py` appends a row for each month missing up to and
+including the month that just ended (SAST) in the three monthly tabs:
 
 - **Predicted inputs** — rounded 6-month average: `Monthly Downloads` and
   `Usage` on the Stats tabs; `Calls` and `Valid Claims` on RAF Claims.

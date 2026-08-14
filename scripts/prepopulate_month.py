@@ -2,8 +2,10 @@
 """
 scripts/prepopulate_month.py
 
-Appends a pre-populated row for each missing month (up to the current
-month, SAST) to the three monthly tabs of the Hollard source sheet:
+Appends a pre-populated row for each missing month — up to and including
+the month that has just ended (SAST), so the run on 1 Sep adds Aug, the
+run on 1 Oct adds Sep — to the three monthly tabs of the Hollard source
+sheet:
 
   AIP Stats / SBMAC Stats — predicts `Monthly Downloads` (B) and
     `Usage` (H) as the rounded 6-month average; every other populated
@@ -172,7 +174,8 @@ def process_tab(sh, tab, predict_cols, today):
     if not last_month:
         raise RuntimeError(f"{tab}: could not parse any month in column A")
 
-    missing = _months_between(last_month, (today.year, today.month))
+    prev = today.replace(day=1) - timedelta(days=1)
+    missing = _months_between(last_month, (prev.year, prev.month))
     if not missing:
         logger.info("%s: up to date (last month %s-%s)", tab, *last_month)
         return 0

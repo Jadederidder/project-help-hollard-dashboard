@@ -1,10 +1,12 @@
 name: Hollard Monthly Pre-population
 
-# On the 1st of each month, appends a predicted row for the new month to
-# AIP Stats, SBMAC Stats and RAF Claims in the source sheet. Predictions
-# are 6-month averages for the raw input columns; derived columns are
-# formulas copied from the row above. Any earlier missing months are
-# back-filled too. The daily sync (05:30 SAST) then picks the rows up.
+# On the 1st of each month, appends a predicted row for the month that
+# just ended (1 Sep adds Aug, 1 Oct adds Sep) to AIP Stats, SBMAC Stats
+# and RAF Claims in the source sheet. Predictions are 6-month averages
+# for the raw input columns; derived columns are formulas copied from
+# the row above. Any earlier missing months are back-filled too. The
+# dashboard sync is triggered straight afterwards so the new rows are
+# live the same morning.
 
 on:
   schedule:
@@ -22,6 +24,7 @@ on:
 
 permissions:
   contents: read
+  actions:  write
 
 concurrency:
   group:              hollard-sheet-write
@@ -51,6 +54,12 @@ jobs:
           GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
         run: python scripts/prepopulate_month.py
+
+      - name: Refresh dashboard
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run sync_dashboard.yml --ref main
 
       - name: Notify on failure
         if: failure()
