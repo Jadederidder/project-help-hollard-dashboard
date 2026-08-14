@@ -1,0 +1,57 @@
+name: Hollard Monthly Pre-population
+
+# On the 1st of each month, appends a predicted row for the new month to
+# AIP Stats, SBMAC Stats and RAF Claims in the source sheet. Predictions
+# are 6-month averages for the raw input columns; derived columns are
+# formulas copied from the row above. Any earlier missing months are
+# back-filled too. The daily sync (05:30 SAST) then picks the rows up.
+
+on:
+  schedule:
+    # 03:10 UTC = 05:10 SAST on the 1st — 20 min before the daily sync
+    # so the new row appears on the dashboard the same morning.
+    - cron: "10 3 1 * *"
+
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run — log planned rows, write nothing"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group:              hollard-sheet-write
+  cancel-in-progress: false
+
+jobs:
+  prepopulate:
+    name: Append predicted month rows
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Pre-populate monthly rows
+        timeout-minutes: 5
+        env:
+          GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: python scripts/prepopulate_month.py
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "::error::Hollard monthly pre-population FAILED — check logs."

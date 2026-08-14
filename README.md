@@ -5,6 +5,7 @@ Public dashboard for the Hollard **AIP** and **SBMAC** help-app programmes.
 - Live dashboard: GitHub Pages (after first push)
 - Source sheet: `Hollard AIP SBMAC_Download Figures` (sheet ID `1O8VmhNwnGdvjzweNZQDEls2ZzRXP0CdlPxyLyh6C_TY`)
 - Refresh cadence: daily, 05:30 SAST (`.github/workflows/sync_dashboard.yml`)
+- Monthly pre-population: 05:10 SAST on the 1st (`.github/workflows/prepopulate_month.yml`) — appends a predicted row for the new month to `AIP Stats`, `SBMAC Stats` and `RAF Claims`
 
 ## Layout
 
@@ -47,11 +48,30 @@ python3 -m http.server 8766 --directory docs
 
 `DRY_RUN=true` prints the payload without writing `summary.json`.
 
+## Monthly pre-population
+
+`scripts/prepopulate_month.py` appends a row for each month missing up to the
+current month (SAST) in the three monthly tabs:
+
+- **Predicted inputs** — rounded 6-month average: `Monthly Downloads` and
+  `Usage` on the Stats tabs; `Calls` and `Valid Claims` on RAF Claims.
+- **Derived columns** — formulas copied from the row above with relative row
+  references shifted down one (`Active Customers`, `Adoption`, `Base size`,
+  `Downloads to Base`, `Usage / Downloads`, `Non-Valid Claims`).
+- The Month cell gets a note marking the row as a prediction so the real
+  figures can be captured over it later. Idempotent — existing months are
+  never touched.
+
+Note: in `DRY_RUN=true` back-fill runs, consecutive months log identical
+values because nothing is appended between iterations; live runs roll each
+appended prediction into the next month's average.
+
 ## GitHub setup notes
 
 Required repo secret: `GOOGLE_SHEETS_CREDENTIALS` (service-account JSON for
-`project-help-sheets@calendar-sync-493309.iam.gserviceaccount.com`, which is
-already shared on the source sheet as a Viewer).
+`project-help-sheets@calendar-sync-493309.iam.gserviceaccount.com`, shared on
+the source sheet as an Editor — write access is needed by the monthly
+pre-population workflow).
 
 GitHub Pages must be enabled with **Source: GitHub Actions** under
 `Settings → Pages`.
