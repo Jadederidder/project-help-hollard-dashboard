@@ -1,0 +1,128 @@
+# CodeRabbit configuration — project-help-hollard-dashboard
+# Hollard dashboard -- sheet-synced client reporting.
+# Schema: https://docs.coderabbit.ai/reference/configuration
+#
+# Intent: rigorous, security-first PR review with LOW noise. This is the
+# always-on per-PR gate that sits *underneath* /cso and /code-review -- its job
+# is to catch the leaked secret, the misconfigured workflow and the obvious bug
+# at 2am, not to bikeshed style the linter already owns.
+#
+# Baseline shared with project-help-drive/.coderabbit.yaml; the tone, path
+# lenses and tool set below are specific to this repo.
+
+language: en-GB
+early_access: false
+tone_instructions: >-
+  Be pragmatic and senior. This dashboard is shown to a client but its
+  findings are internal-only. Weight data-exposure and correctness of the
+  synced figures above style; keep cosmetic comments to a minimum.
+
+reviews:
+  profile: assertive
+  request_changes_workflow: false   # advisory -- don't block low-stakes work
+  high_level_summary: true
+  poem: false                         # no filler
+  review_status: true
+  collapse_walkthrough: false
+  commit_status: true
+  estimate_code_review_effort: true
+
+  auto_review:
+    enabled: true
+    drafts: false                     # don't burn reviews on draft PRs
+    base_branches:
+      - main
+
+  # Only review what matters. Everything below is generated, vendored, data or
+  # docs -- keep it out so real findings aren't buried.
+  path_filters:
+    - "!**/node_modules/**"
+    - "!**/dist/**"
+    - "!**/build/**"
+    - "!package-lock.json"
+    - "!**/*.png"
+    - "!**/*.jpg"
+    - "!**/*.pdf"
+    - "!docs/**"
+
+  # Domain-specific review lenses -- sharpen the reviewer on the parts of this
+  # repo where a mistake is expensive.
+  path_instructions:
+    - path: "scripts/**/*.py"
+      instructions: >-
+        Sync and rendering scripts. Flag any internal-only finding or
+        commentary that could render into the client-facing view,
+        credentials committed as literals, and any sync that reports success
+        on a partial load. Supabase access must use the pooler with IPv4 and
+        batch writes at 200 rows or fewer. Any bulk UPDATE/DELETE must
+        SELECT and count its matched rows before it writes — flag a bulk
+        write whose predicate is not first proven against an explicit
+        expected count.
+    - path: ".github/workflows/**"
+      instructions: >-
+        GitHub Actions. Flag over-broad `permissions:`, untrusted PR input
+        used inside `run:` steps (script injection), unpinned third-party
+        actions, and secrets echoed into logs. This account has been bitten
+        by two cron classes of bug: schedules that fire simultaneously and
+        race each other, and jobs whose timeout does not account for queue
+        time — flag both. Prefer least-privilege tokens.
+
+  # Static analysis / SAST -- CodeRabbit runs these in sandboxed containers and
+  # folds the results into the same review thread.
+  tools:
+    # Secret scanning -- the non-negotiable gate.
+    gitleaks:
+      enabled: true
+    # Second secret scanner; catches what gitleaks' rules miss.
+    trufflehog:
+      enabled: true
+    # PII leak detection -- customer/driver personal data in diffs.
+    presidio:
+      enabled: true
+    # Deep semantic security patterns.
+    semgrep:
+      enabled: true
+    # Known CVEs in declared dependencies.
+    osvScanner:
+      enabled: true
+    # Python lint/format.
+    ruff:
+      enabled: true
+    # Off -- ruff already covers this repo.
+    pylint:
+      enabled: false
+    # Off -- ruff already covers this repo.
+    flake8:
+      enabled: false
+    # Off -- repo uses ESLint; avoid double-linting noise.
+    biome:
+      enabled: false
+    # IaC / config security (wrangler, deploy manifests).
+    checkov:
+      enabled: true
+    # GitHub Actions workflow correctness.
+    actionlint:
+      enabled: true
+    # GitHub Actions security -- script injection, broad permissions.
+    zizmor:
+      enabled: true
+    # YAML correctness (workflows, config).
+    yamllint:
+      enabled: true
+    # Shell scripts in scripts/.
+    shellcheck:
+      enabled: true
+    # Off -- docs are not code; keep the review signal clean.
+    markdownlint:
+      enabled: false
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  learnings:
+    scope: local          # keep this repo's decisions in this repo
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "README.md"
