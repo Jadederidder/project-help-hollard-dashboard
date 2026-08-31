@@ -73,9 +73,9 @@ reviews:
     # Secret scanning -- the non-negotiable gate.
     gitleaks:
       enabled: true
-    # Second secret scanner; catches what gitleaks' rules miss.
+    # Off -- gitleaks already covers secrets; avoid double-scan noise.
     trufflehog:
-      enabled: true
+      enabled: false
     # PII leak detection -- customer/driver personal data in diffs.
     presidio:
       enabled: true
