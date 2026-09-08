@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-07T08:33:33Z",
+  "lastUpdated": "2026-09-08T08:16:25Z",
   "views": {
     "AIP": {
       "kpis": {
@@ -37358,9 +37358,9 @@
     {
       "month": "Aug 2026",
       "monthSort": "2026-08",
-      "calls": 4,
-      "valid": 1,
-      "nonValid": 3
+      "calls": 1,
+      "valid": 0,
+      "nonValid": 1
     }
   ]
 }
