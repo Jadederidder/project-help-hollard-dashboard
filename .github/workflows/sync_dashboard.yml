@@ -29,7 +29,7 @@ concurrency:
 jobs:
   sync:
     name: Refresh Hollard dashboard data
-    runs-on: [self-hosted, linux, x64]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
