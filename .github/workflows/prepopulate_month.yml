@@ -33,7 +33,7 @@ concurrency:
 jobs:
   prepopulate:
     name: Append predicted month rows
-    runs-on: [self-hosted, linux, x64]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
