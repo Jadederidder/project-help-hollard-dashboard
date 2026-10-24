@@ -284,6 +284,20 @@ def main():
     OUT_PATH.write_text(json_str + "\n", encoding="utf-8")
     logger.info("Wrote %s (%d bytes)", OUT_PATH, len(json_str) + 1)
 
+    # Second sink: the same payload into the Project Help CRM's core database,
+    # so the CRM can query Hollard instead of parsing this JSON file. Runs AFTER
+    # summary.json is written and never raises — the public dashboard's refresh
+    # must not fail because the CRM side is unavailable. Skips entirely when
+    # CORE_DB_URL is unset, which is the default.
+    try:
+        from core_sink import push as _push_to_core
+    except ImportError:
+        from scripts.core_sink import push as _push_to_core
+    try:
+        _push_to_core(payload)
+    except Exception:
+        logger.exception("CRM sink failed — summary.json is written and the dashboard is fine")
+
 
 if __name__ == "__main__":
     main()
