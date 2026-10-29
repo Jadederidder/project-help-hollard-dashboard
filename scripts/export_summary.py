@@ -221,6 +221,27 @@ def _kpis(stats, daily, panic_count):
     }
 
 
+def _with_retries(fn, attempts=4, delays=(15, 45, 90)):
+    """Run fn(), retrying on transient Google API 5xx / connection errors."""
+    import time
+    import requests
+    for attempt in range(attempts):
+        try:
+            return fn()
+        except (gspread.exceptions.APIError,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.Timeout) as exc:
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            transient = status is None or status >= 500 or status == 429
+            if not transient or attempt == attempts - 1:
+                raise
+            delay = delays[min(attempt, len(delays) - 1)]
+            logger.warning("Transient Sheets API error (%s) — retry %d/%d in %ds",
+                           status or type(exc).__name__, attempt + 1,
+                           attempts - 1, delay)
+            time.sleep(delay)
+
+
 def build_payload():
     gc = _auth()
     sh = gc.open_by_key(SHEET_ID)
@@ -264,7 +285,7 @@ def main():
         format="%(asctime)s  %(levelname)-8s  %(message)s",
         handlers=[logging.StreamHandler(sys.stdout)],
     )
-    payload = build_payload()
+    payload = _with_retries(build_payload)
     for view in ("AIP", "SBMAC"):
         v = payload["views"][view]
         logger.info(

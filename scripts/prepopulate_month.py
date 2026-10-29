@@ -159,6 +159,31 @@ def _add_note(ws, row_idx):
     })
 
 
+def _with_retries(fn, attempts=4, delays=(15, 45, 90)):
+    """Run fn(), retrying on transient Google API 5xx / connection errors.
+
+    Safe here because process_tab is idempotent — it re-reads the tab and
+    only appends months that are still missing.
+    """
+    import time
+    import requests
+    for attempt in range(attempts):
+        try:
+            return fn()
+        except (gspread.exceptions.APIError,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.Timeout) as exc:
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            transient = status is None or status >= 500 or status == 429
+            if not transient or attempt == attempts - 1:
+                raise
+            delay = delays[min(attempt, len(delays) - 1)]
+            logger.warning("Transient Sheets API error (%s) — retry %d/%d in %ds",
+                           status or type(exc).__name__, attempt + 1,
+                           attempts - 1, delay)
+            time.sleep(delay)
+
+
 def process_tab(sh, tab, predict_cols, today):
     ws = sh.worksheet(tab)
     values = ws.get_all_values()
@@ -212,7 +237,8 @@ def main():
     total, failures = 0, []
     for tab, cfg in TABS.items():
         try:
-            total += process_tab(sh, tab, cfg["predict"], today)
+            total += _with_retries(
+                lambda tab=tab, cfg=cfg: process_tab(sh, tab, cfg["predict"], today))
         except Exception as exc:
             logger.error("%s: FAILED — %s", tab, exc)
             failures.append(tab)
