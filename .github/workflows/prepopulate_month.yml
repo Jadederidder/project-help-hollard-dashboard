@@ -21,6 +21,11 @@ on:
         required: false
         default: false
         type: boolean
+      attempt:
+        description: "Internal outage-retry counter — leave at 1"
+        required: false
+        default: "1"
+        type: string
 
 permissions:
   contents: read
@@ -49,14 +54,39 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Pre-populate monthly rows
-        timeout-minutes: 5
+        id: prepopulate
+        continue-on-error: true
+        timeout-minutes: 10
         env:
           GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
         run: python scripts/prepopulate_month.py
 
+      # Outage resilience — same pattern as sync_dashboard.yml: on failure
+      # wait 15 min and re-dispatch (attempt+1); only attempt 4 fails
+      # loudly. Safe to re-run: the script only appends months that are
+      # still missing.
+      - name: Schedule outage retry
+        if: ${{ steps.prepopulate.outcome == 'failure' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ATTEMPT:  ${{ github.event.inputs.attempt || '1' }}
+          DRY:      ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          if [ "$DRY" = "true" ]; then
+            echo "::error::Pre-population failed (dry run) — not retrying."
+            exit 1
+          fi
+          if [ "$ATTEMPT" -ge 4 ]; then
+            echo "::error::Pre-population failed on attempt $ATTEMPT/4 — giving up."
+            exit 1
+          fi
+          echo "::warning::Pre-population failed (attempt $ATTEMPT/4) — retrying in 15 min."
+          sleep 900
+          gh workflow run prepopulate_month.yml --ref main -f attempt="$((ATTEMPT + 1))"
+
       - name: Refresh dashboard
-        if: ${{ github.event.inputs.dry_run != 'true' }}
+        if: ${{ steps.prepopulate.outcome == 'success' && github.event.inputs.dry_run != 'true' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run sync_dashboard.yml --ref main
