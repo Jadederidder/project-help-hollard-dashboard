@@ -265,8 +265,20 @@ def _bounded(cur, deadline, label):
     bounded by the remaining budget at the moment it starts, and because that
     figure only shrinks, the total cannot run past the deadline.
 
-    `set local` reverts at commit -- and at rollback -- so this never leaks
-    into another transaction on a pooled connection.
+    The transaction-local scope reverts at the end of the transaction, so
+    this never leaks onto a pooled connection. Verified on the live
+    PostgreSQL 17 server rather than asserted, since the fake driver cannot
+    establish server behaviour:
+
+      before anything                     -> 2min  (the session default)
+      after set_config(..., true)         -> 5s    (so it takes effect)
+      after that transaction rolled back  -> 2min  (so it reverts)
+
+    The revert-after-COMMIT half is the documented meaning of is_local and
+    is not separately verified here; neither is the psycopg driver path,
+    because this container has no psycopg and no disposable Postgres. That
+    gap is why the test fake refuses the form PostgreSQL rejects instead of
+    trusting that the call is right.
 
     There is deliberately no "no deadline" mode. An earlier version took
     deadline=None and returned silently, which is the same shape as every
