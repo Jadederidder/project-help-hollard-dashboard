@@ -692,6 +692,20 @@ class TestPushRespectsItsBudget(_PushCase):
         self.assertEqual(cur.timeouts, [],
                          "no statement may be bounded once it has given up")
 
+    def test_no_helper_can_be_called_without_a_deadline(self):
+        # The budget helpers used to take deadline=None and skip the bound
+        # entirely. That is the same shape as every other defect found in
+        # this file -- a guard that looks present and does nothing -- so the
+        # argument is now required and this holds it that way.
+        import inspect
+        for fn in (cs._bounded, cs._write_batched, cs._reconcile):
+            params = inspect.signature(fn).parameters
+            self.assertIn("deadline", params, fn.__name__)
+            self.assertIs(params["deadline"].default,
+                          inspect.Parameter.empty,
+                          f"{fn.__name__} lets deadline default, so a caller "
+                          "can silently get no bound")
+
     def test_a_healthy_run_is_nowhere_near_the_budget(self):
         # Guards against a budget so tight that a normal refresh trips it.
         _fake, _cur, ok = self.run_push(payload())

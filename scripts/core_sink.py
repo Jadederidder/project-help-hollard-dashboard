@@ -223,11 +223,14 @@ def _bounded(cur, deadline, label):
     bounded by the remaining budget at the moment it starts, and because that
     figure only shrinks, the total cannot run past the deadline.
 
-    `set local` reverts at commit, so this never leaks into another
-    transaction on a pooled connection.
+    `set local` reverts at commit -- and at rollback -- so this never leaks
+    into another transaction on a pooled connection.
+
+    There is deliberately no "no deadline" mode. An earlier version took
+    deadline=None and returned silently, which is the same shape as every
+    other defect found in this file: a guard that looks present and does
+    nothing. The callers all have a deadline, so now they must pass one.
     """
-    if deadline is None:
-        return
     remaining_ms = int((deadline - time.monotonic()) * 1000) - COMMIT_RESERVE_MS
     if remaining_ms < MIN_STATEMENT_MS:
         raise RuntimeError(
@@ -238,7 +241,7 @@ def _bounded(cur, deadline, label):
                 (min(remaining_ms, STATEMENT_TIMEOUT_MS),))
 
 
-def _write_batched(cur, sql, rows, deadline=None, label="write") -> int:
+def _write_batched(cur, sql, rows, deadline, label) -> int:
     """executemany in batches of WRITE_BATCH. Returns the rows submitted.
 
     The deadline is checked per batch, not just once per table: daily and
@@ -251,8 +254,7 @@ def _write_batched(cur, sql, rows, deadline=None, label="write") -> int:
     return len(rows)
 
 
-def _reconcile(cur, table, now, where, params, expected, label,
-               deadline=None):
+def _reconcile(cur, table, now, where, params, expected, label, deadline):
     """Remove rows this run did not write, then prove the end state.
 
     Every row written above carries synced_at = now, so a row still holding an
