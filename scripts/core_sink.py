@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import logging
 import os
+import time
 from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
@@ -36,6 +37,21 @@ CONNECT_TIMEOUT_SECONDS = 20
 # summary.json being committed, so the statements are bounded too. 90s leaves
 # the exporter the rest of its budget.
 STATEMENT_TIMEOUT_MS = 90_000
+# The whole sink, not one statement. STATEMENT_TIMEOUT_MS bounds each
+# statement; this bounds their sum, which is the number that actually matters:
+# a healthy refresh sends ~50 statements (19 batches of panics, 18 of daily,
+# plus the reconcile counts), and the step that calls this has
+# timeout-minutes: 5 with the summary.json commit and the Pages deploy AFTER
+# it. So a slow-but-not-stalled database could use the step's whole budget
+# here and get it killed, leaving summary.json written in the workspace and
+# never published -- the CRM sink breaking the public dashboard's refresh,
+# which is the one thing this design says it must never do.
+#
+# Overrunning raises, and export_summary already calls push() inside a
+# try/except, so the sink gives up and the commit and deploy steps still run.
+# 120s is deliberately well under the 5 minutes: the sheet reads happen first
+# and take their share.
+SINK_BUDGET_SECONDS = 120
 
 # Writes go out in batches rather than one executemany over a whole table:
 # the real payload is ~1,700 daily rows and ~2,600 panic pins per programme.
@@ -171,14 +187,29 @@ def _incompleteness(payload) -> list:
     return problems
 
 
-def _write_batched(cur, sql, rows) -> int:
-    """executemany in batches of WRITE_BATCH. Returns the rows submitted."""
+def _past(deadline, label):
+    """Raise if the sink has used its budget. Checked between operations."""
+    if deadline is not None and time.monotonic() > deadline:
+        raise RuntimeError(
+            f"CRM sink exceeded its {SINK_BUDGET_SECONDS}s budget at {label}; "
+            "giving up so the dashboard's own commit and deploy still run")
+
+
+def _write_batched(cur, sql, rows, deadline=None, label="write") -> int:
+    """executemany in batches of WRITE_BATCH. Returns the rows submitted.
+
+    The deadline is checked per batch, not just once per table: daily and
+    panics are ~19 batches each, so a per-table check would let the budget
+    run out inside one of them.
+    """
     for i in range(0, len(rows), WRITE_BATCH):
+        _past(deadline, f"{label} batch {i // WRITE_BATCH + 1}")
         cur.executemany(sql, rows[i:i + WRITE_BATCH])
     return len(rows)
 
 
-def _reconcile(cur, table, now, where, params, expected, label):
+def _reconcile(cur, table, now, where, params, expected, label,
+               deadline=None):
     """Remove rows this run did not write, then prove the end state.
 
     Every row written above carries synced_at = now, so a row still holding an
@@ -193,6 +224,7 @@ def _reconcile(cur, table, now, where, params, expected, label):
     any predicate that took rows it should not have. All of it is inside one
     transaction, so a failure anywhere rolls the whole refresh back.
     """
+    _past(deadline, f"reconcile {label}")
     cur.execute(f"select count(*) from public.{table} where {where} "
                 "and synced_at <> %s", params + (now,))
     stale = cur.fetchone()[0]
@@ -265,6 +297,7 @@ def push(payload) -> bool:
         return False
 
     now = datetime.now(timezone.utc)
+    deadline = time.monotonic() + SINK_BUDGET_SECONDS
     # One transaction. A half-written refresh would make the CRM disagree with
     # the dashboard, which is worse than a refresh that did not happen.
     progs = (list(PROGRAMMES),)
@@ -288,7 +321,7 @@ def push(payload) -> bool:
               downloads_to_base_pct = excluded.downloads_to_base_pct,
               usage = excluded.usage,
               synced_at = excluded.synced_at
-        """, [r + (now,) for r in monthly])
+        """, [r + (now,) for r in monthly], deadline, "monthly")
 
         _write_batched(cur, """
             insert into public.hollard_daily (programme, day, callouts, cumulative_col, completed, synced_at)
@@ -298,7 +331,7 @@ def push(payload) -> bool:
               cumulative_col = excluded.cumulative_col,
               completed = excluded.completed,
               synced_at = excluded.synced_at
-        """, [r + (now,) for r in daily])
+        """, [r + (now,) for r in daily], deadline, "daily")
 
         # Panics cannot be upserted: rows repeat legitimately (one coordinate
         # appears three times in the source) so there is no natural key to
@@ -310,7 +343,7 @@ def push(payload) -> bool:
         _write_batched(cur, """
             insert into public.hollard_panics (programme, lat, lon, synced_at)
             values (%s,%s,%s,%s)
-        """, [r + (now,) for r in panics])
+        """, [r + (now,) for r in panics], deadline, "panics")
 
         _write_batched(cur, """
             insert into public.hollard_raf_claims (month_sort, month_label, calls, valid, non_valid, synced_at)
@@ -321,19 +354,22 @@ def push(payload) -> bool:
               valid = excluded.valid,
               non_valid = excluded.non_valid,
               synced_at = excluded.synced_at
-        """, [r + (now,) for r in raf])
+        """, [r + (now,) for r in raf], deadline, "raf")
 
         # Withdraw what the source no longer carries. Without this, a monthly,
         # daily or RAF row whose source line was deleted stays in the CRM for
         # ever while every run reports success.
         _reconcile(cur, "hollard_monthly", now, "programme = any(%s)", progs,
-                   len({(r[0], r[1]) for r in monthly}), "hollard_monthly")
+                   len({(r[0], r[1]) for r in monthly}), "hollard_monthly",
+                   deadline)
         _reconcile(cur, "hollard_daily", now, "programme = any(%s)", progs,
-                   len({(r[0], r[1]) for r in daily}), "hollard_daily")
+                   len({(r[0], r[1]) for r in daily}), "hollard_daily",
+                   deadline)
         _reconcile(cur, "hollard_panics", now, "programme = any(%s)", progs,
-                   len(panics), "hollard_panics")
+                   len(panics), "hollard_panics", deadline)
         _reconcile(cur, "hollard_raf_claims", now, "true", (),
-                   len({r[0] for r in raf}), "hollard_raf_claims")
+                   len({r[0] for r in raf}), "hollard_raf_claims",
+                   deadline)
 
         conn.commit()
 

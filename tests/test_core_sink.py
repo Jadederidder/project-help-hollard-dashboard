@@ -444,6 +444,102 @@ class TestPushEndStateGuard(_PushCase):
         self.assertEqual(cur.initial["hollard_monthly"], [LAST_RUN] * 2)
 
 
+class TestPushRespectsItsBudget(_PushCase):
+    """The sink must give up in time for the dashboard's own steps to run.
+
+    The workflow step that calls export_summary.py has timeout-minutes: 5,
+    and the summary.json commit and the Pages deploy are steps AFTER it. A
+    slow-but-not-stalled database could therefore use the whole step budget
+    inside the sink and get the step killed, leaving summary.json written in
+    the workspace and never published. The per-statement timeout cannot see
+    that: ~50 statements each comfortably under 90s still add up.
+    """
+
+    def test_an_overrun_raises_rather_than_writing_on(self):
+        import time as _time
+        real = _time.monotonic
+        # Budget spent the moment the clock is read for the second time: the
+        # first read sets the deadline, every read after it is past.
+        calls = {"n": 0}
+
+        def creeping():
+            calls["n"] += 1
+            return real() + (0 if calls["n"] == 1 else cs.SINK_BUDGET_SECONDS + 1)
+
+        _time.monotonic = creeping
+        try:
+            cur = _FakeCursor()
+            fake = _FakePsycopg(cur)
+            sys.modules["psycopg"] = fake
+            with self.assertRaises(RuntimeError) as e:
+                cs.push(payload())
+            msg = str(e.exception)
+            self.assertIn("exceeded its", msg)
+            self.assertIn("so the dashboard", msg)
+            self.assertFalse(fake.conn.committed)
+            self.assertTrue(cur.rolled_back)
+            for table, before in cur.initial.items():
+                self.assertEqual(cur.tables[table], before)
+        finally:
+            _time.monotonic = real
+
+    def test_the_caller_turns_an_overrun_into_a_skipped_sink(self):
+        # The point of raising: export_summary calls push() inside a
+        # try/except, so an overrun stops the sink WITHOUT failing the step,
+        # and the commit and deploy steps still run. If that call ever stops
+        # being guarded, this comment is the thing that was relied on.
+        src = open(os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "scripts", "export_summary.py")).read()
+        i = src.index("_push_to_core(payload)")
+        self.assertIn("try:", src[max(0, i - 200):i],
+                      "push() must stay inside a try/except in the caller")
+        self.assertIn("except Exception", src[i:i + 200])
+
+    def test_the_budget_is_checked_between_batches_not_just_per_table(self):
+        # Daily and panics are ~19 batches each on the real payload, so a
+        # check taken once per table would let the budget run out INSIDE one
+        # of them and never notice. The first draft of these tests did not
+        # prove this: deleting the per-batch check left them all green,
+        # because the reconcile check fired first and hid it. This one
+        # expires the clock partway through the daily write and requires the
+        # remaining batches never to be sent.
+        import time as _time
+        real = _time.monotonic
+        # Call 1 sets the deadline. Call 2 is the monthly batch, call 3 the
+        # first daily batch; from call 4 -- the second daily batch -- the
+        # budget is gone.
+        calls = {"n": 0}
+
+        def expire_on_fourth_look():
+            calls["n"] += 1
+            over = calls["n"] >= 4
+            return real() + (cs.SINK_BUDGET_SECONDS + 1 if over else 0)
+
+        _time.monotonic = expire_on_fourth_look
+        try:
+            cur = _FakeCursor()
+            fake = _FakePsycopg(cur)
+            sys.modules["psycopg"] = fake
+            # 253 daily rows -> batches of [200, 53]; the second must not go.
+            with self.assertRaises(RuntimeError) as e:
+                cs.push(payload(aip_daily=250))
+            self.assertIn("daily batch 2", str(e.exception))
+            self.assertEqual(cur.batches[-1], cs.WRITE_BATCH,
+                             "it stopped after the full first daily batch")
+            self.assertEqual(sum(cur.batches), 4 + 200,
+                             "4 monthly rows and one daily batch, nothing more")
+            self.assertFalse(fake.conn.committed)
+            self.assertTrue(cur.rolled_back)
+        finally:
+            _time.monotonic = real
+
+    def test_a_healthy_run_is_nowhere_near_the_budget(self):
+        # Guards against a budget so tight that a normal refresh trips it.
+        _fake, _cur, ok = self.run_push(payload())
+        self.assertTrue(ok)
+
+
 class TestPushProvesTheWriteBeforeDeleting(_PushCase):
     """_reconcile counts this run's own rows before it removes anyone else's.
 
