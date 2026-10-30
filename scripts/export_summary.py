@@ -120,13 +120,27 @@ def _stats_rows(ws):
 
 
 def _daily_rows(ws):
+    """Returns (rows, dropped) -- the usable rows AND how many were thrown out.
+
+    The count is not diagnostics. A source row whose date will not parse is
+    dropped here, and a dropped row leaves `out` non-empty, so nothing
+    downstream can tell a complete snapshot from one missing a day. The CRM
+    sink replaces what it writes, so it would reconcile that day away and
+    report success. It can only refuse a partial load if this function tells
+    it one happened, which is why the count travels with the rows.
+
+    A blank first cell is a trailing empty sheet row, not a dropped reading,
+    so it is not counted.
+    """
     rows = ws.get_all_values()
-    if not rows: return []
-    out = []
+    if not rows: return [], 0
+    out, dropped = [], 0
     for r in rows[1:]:
         if not r or not r[0].strip(): continue
         date = _parse_daily_date(r[0])
-        if date is None: continue
+        if date is None:
+            dropped += 1
+            continue
         # Only first 4 cols matter; everything past col D is the stale
         # AIP "Active Apps by Month" pivot — confirmed dead since Jun 2023.
         r = (r + [""] * 4)[:4]
@@ -137,7 +151,7 @@ def _daily_rows(ws):
             "completed":  _to_int(r[3]),
         })
     out.sort(key=lambda x: x["date"])
-    return out
+    return out, dropped
 
 
 def _panic_points(ws):
@@ -229,8 +243,8 @@ def build_payload():
 
     aip_stats   = _stats_rows(ws("AIP Stats"))
     sbmac_stats = _stats_rows(ws("SBMAC Stats"))
-    aip_daily   = _daily_rows(ws("AIP Daily call outs"))
-    sbmac_daily = _daily_rows(ws("SBMAC Daily Call outs"))
+    aip_daily,   aip_dropped   = _daily_rows(ws("AIP Daily call outs"))
+    sbmac_daily, sbmac_dropped = _daily_rows(ws("SBMAC Daily Call outs"))
     aip_panics  = _panic_points(ws("AIP Panics"))
     sbmac_panics = _panic_points(ws("SBMAC Panics"))
     raf         = _raf_rows(ws("RAF Claims"))
@@ -245,12 +259,14 @@ def build_payload():
                 "stats":  aip_stats,
                 "daily":  aip_daily,
                 "panics": aip_panics,
+                "sourceDropped": aip_dropped,
             },
             "SBMAC": {
                 "kpis":   _kpis(sbmac_stats, sbmac_daily, len(sbmac_panics)),
                 "stats":  sbmac_stats,
                 "daily":  sbmac_daily,
                 "panics": sbmac_panics,
+                "sourceDropped": sbmac_dropped,
             },
         },
         "raf": raf,
@@ -268,10 +284,11 @@ def main():
     for view in ("AIP", "SBMAC"):
         v = payload["views"][view]
         logger.info(
-            "%s — %d stats months (latest %s), %d daily rows, %d panic points",
+            "%s — %d stats months (latest %s), %d daily rows, %d panic "
+            "points, %d source row(s) dropped",
             view, len(v["stats"]),
             v["kpis"].get("latestMonth"),
-            len(v["daily"]), len(v["panics"]),
+            len(v["daily"]), len(v["panics"]), v.get("sourceDropped", 0),
         )
     logger.info("RAF — %d months", len(payload["raf"]))
 

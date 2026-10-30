@@ -18,10 +18,15 @@ import core_sink as cs
 
 
 def payload(aip_stats=2, aip_daily=3, aip_panics=4,
-            sbmac_stats=2, sbmac_daily=3, sbmac_panics=4, raf=2):
+            sbmac_stats=2, sbmac_daily=3, sbmac_panics=4, raf=2,
+            aip_dropped=0, sbmac_dropped=0):
     """A structurally complete payload, sized small enough to reason about."""
-    def view(n_stats, n_daily, n_panics, tag):
+    def view(n_stats, n_daily, n_panics, tag, dropped):
         return {
+            # What the exporter had to throw away. 0 is the healthy value and
+            # the key being ABSENT is not the same thing -- see
+            # test_a_payload_that_does_not_say_what_it_dropped_is_refused.
+            "sourceDropped": dropped,
             "stats": [{"monthSort": f"2025-{i:02d}", "month": f"M{i}",
                        "monthlyDownloads": i, "activeCustomers": i,
                        "totalDownloads": i, "adoptionPct": 1.0,
@@ -34,8 +39,10 @@ def payload(aip_stats=2, aip_daily=3, aip_panics=4,
                        for i in range(n_panics)],
         }
     return {
-        "views": {"AIP": view(aip_stats, aip_daily, aip_panics, "AIP"),
-                  "SBMAC": view(sbmac_stats, sbmac_daily, sbmac_panics, "S")},
+        "views": {"AIP": view(aip_stats, aip_daily, aip_panics, "AIP",
+                              aip_dropped),
+                  "SBMAC": view(sbmac_stats, sbmac_daily, sbmac_panics, "S",
+                                sbmac_dropped)},
         "raf": [{"monthSort": f"2025-{i:02d}", "month": f"M{i}", "calls": i,
                  "valid": i, "nonValid": 0} for i in range(1, raf + 1)],
     }
@@ -84,6 +91,34 @@ class TestIncompleteness(unittest.TestCase):
         self.assertIn("SBMAC: 1 panic pin(s) carry no coordinates",
                       cs._incompleteness(p))
 
+    def test_source_rows_dropped_by_the_exporter_are_a_problem(self):
+        # The case neither emptiness nor the undated check can see. The
+        # exporter's _daily_rows drops a row whose date will not parse, so it
+        # never reaches the payload: `daily` is still full, every row in it
+        # has a usable date, and the only evidence the snapshot is short is
+        # the count the exporter now sends along.
+        self.assertIn(
+            "AIP: the exporter dropped 2 source row(s) it could not read, so "
+            "this snapshot is partial",
+            cs._incompleteness(payload(aip_dropped=2)))
+
+    def test_a_payload_that_does_not_say_what_it_dropped_is_refused(self):
+        # Silence is not reassurance. An older exporter, or one whose count
+        # went missing in a refactor, must not be read as "nothing was
+        # dropped" -- that is the exact failure this check exists to stop,
+        # and it would come back the moment the key quietly disappeared.
+        p = payload()
+        del p["views"]["SBMAC"]["sourceDropped"]
+        self.assertIn(
+            "SBMAC: the payload does not say how many source rows were "
+            "dropped, so a partial load cannot be ruled out",
+            cs._incompleteness(p))
+
+    def test_zero_dropped_is_not_a_problem(self):
+        # The healthy value, held explicitly so the check above cannot be
+        # "fixed" by making 0 and absent behave the same.
+        self.assertEqual(cs._incompleteness(payload(aip_dropped=0)), [])
+
 
 class _FakeCursor:
     """A fake that holds rows, so a DELETE actually has to be correct.
@@ -103,6 +138,13 @@ class _FakeCursor:
         self.tables = {t: list(existing.get(t, []) if existing else [])
                        for t in ("hollard_monthly", "hollard_daily",
                                  "hollard_panics", "hollard_raf_claims")}
+        # What the tables held before this transaction touched them. A real
+        # connection rolls back on an unclean exit, so the fake has to as
+        # well: without this, a test could assert "commit() was not called"
+        # and still be sitting on rows the failed push had written, which
+        # proves nothing about what the database would be left holding.
+        self.initial = {t: list(v) for t, v in self.tables.items()}
+        self.rolled_back = False
         self.rowcount = 0
         self.log = []
         self.batches = []
@@ -122,20 +164,30 @@ class _FakeCursor:
                 return t
         raise AssertionError(f"statement names no known table: {sql[:80]}")
 
+    def rollback(self):
+        self.tables = {t: list(v) for t, v in self.initial.items()}
+        self.rolled_back = True
+
     def execute(self, sql, params=None):
         low = " ".join(sql.split()).lower()
         table = self._table(low)
-        scoped = "synced_at <> %s" in low
+        stale_scoped = "synced_at <> %s" in low
+        fresh_scoped = "and synced_at = %s" in low
+        scoped = stale_scoped or fresh_scoped
         now = params[-1] if (scoped and params) else None
 
         if low.startswith("select count(*)"):
             rows = self.tables[table]
-            self._result = (sum(1 for r in rows if r != now) if scoped
-                            else len(rows))
+            if stale_scoped:
+                self._result = sum(1 for r in rows if r != now)
+            elif fresh_scoped:
+                self._result = sum(1 for r in rows if r == now)
+            else:
+                self._result = len(rows)
             self.log.append(("count", table, self._result))
         elif low.startswith("delete"):
             rows = self.tables[table]
-            if scoped:
+            if stale_scoped:
                 keep = [r for r in rows if r == now]
             else:
                 # A delete with no synced_at clause takes everything the
@@ -167,6 +219,8 @@ class _FakeConn:
 
     def __exit__(self, exc_type, *a):
         self.clean = exc_type is None
+        if exc_type is not None:
+            self._cur.rollback()
         return False
 
     def cursor(self):
@@ -221,6 +275,24 @@ class TestPushRefusesIncompletePayloads(_PushCase):
         fake, _cur, ok = self.run_push(payload(aip_panics=0))
         self.assertFalse(ok)
         self.assertIsNone(fake.conn, "refused payload must not connect at all")
+
+    def test_a_missing_programme_returns_false_rather_than_raising(self):
+        # _incompleteness has always called this incomplete, but push() used
+        # to build its rows first, and _rows_monthly reaches
+        # payload["views"][programme]["stats"] with a hard subscript -- so the
+        # KeyError landed before the check could speak. The caller caught it
+        # and logged a traceback, which looks like a bug in the sink rather
+        # than a bad read upstream. The gate runs first now.
+        p = payload()
+        del p["views"]["SBMAC"]
+        fake, _cur, ok = self.run_push(p)
+        self.assertFalse(ok)
+        self.assertIsNone(fake.conn)
+
+    def test_a_partial_snapshot_returns_false_without_connecting(self):
+        fake, _cur, ok = self.run_push(payload(sbmac_dropped=1))
+        self.assertFalse(ok)
+        self.assertIsNone(fake.conn, "a partial load must not reach the CRM")
 
 
 class TestPushHappyPath(_PushCase):
@@ -343,7 +415,8 @@ class TestPushEndStateGuard(_PushCase):
             _FakeCursor.execute = real_execute
 
     def test_a_delete_removing_a_different_number_rolls_back(self):
-        cur = _FakeCursor({"hollard_monthly": [LAST_RUN] * 2})
+        existing = {"hollard_monthly": [LAST_RUN] * 2}
+        cur = _FakeCursor(existing)
         fake = _FakePsycopg(cur)
         sys.modules["psycopg"] = fake
 
@@ -360,6 +433,69 @@ class TestPushEndStateGuard(_PushCase):
         self.assertIn("counted a moment earlier", str(e.exception))
         self.assertFalse(fake.conn.committed)
         self.assertIs(fake.conn.clean, False)
+
+        # "commit() was not called" is only half the claim. What matters is
+        # what the database is left holding, so check every table the batch
+        # could have written -- all four -- against what it held going in.
+        self.assertTrue(cur.rolled_back)
+        for table, before in cur.initial.items():
+            self.assertEqual(cur.tables[table], before,
+                             f"{table} did not come back to its initial rows")
+        self.assertEqual(cur.initial["hollard_monthly"], [LAST_RUN] * 2)
+
+
+class TestPushProvesTheWriteBeforeDeleting(_PushCase):
+    """_reconcile counts this run's own rows before it removes anyone else's.
+
+    The end-state check would catch a bad delete as well -- it is one
+    transaction, so nothing wrong commits either way -- but it catches it
+    after the fact. These two make the sink refuse on the strength of the
+    write itself, and say which part did not add up.
+    """
+
+    def test_a_short_insert_is_caught_before_the_delete_runs(self):
+        # The insert silently puts in one row fewer than push() believes it
+        # wrote. Nothing about the delete is wrong; the arithmetic behind it
+        # is. The sink must say so and not delete the previous run's rows on
+        # the strength of it.
+        real_many = _FakeCursor.executemany
+
+        def short(self, sql, seq):
+            if "hollard_monthly" in sql:
+                seq = list(seq)[:-1]
+            return real_many(self, sql, seq)
+
+        _FakeCursor.executemany = short
+        try:
+            cur = _FakeCursor({"hollard_monthly": [LAST_RUN] * 3})
+            fake = _FakePsycopg(cur)
+            sys.modules["psycopg"] = fake
+            with self.assertRaises(RuntimeError) as e:
+                cs.push(payload())
+            msg = str(e.exception)
+            self.assertIn("carry this run's stamp", msg)
+            self.assertIn("refusing to delete", msg)
+            self.assertFalse(fake.conn.committed)
+            # The three older rows are still there: it refused rather than
+            # half-finishing.
+            self.assertEqual(cur.tables["hollard_monthly"], [LAST_RUN] * 3)
+            self.assertNotIn("delete",
+                             [kind for kind, *_ in cur.log],
+                             "no delete may run once the counts disagree")
+        finally:
+            _FakeCursor.executemany = real_many
+
+    def test_the_happy_path_still_counts_both_ways(self):
+        # Guards the guard: the fresh-row count must be taken for every
+        # table, or the check above is only pretending to run.
+        _fake, cur, ok = self.run_push(payload())
+        self.assertTrue(ok)
+        counted = [t for kind, t, _n in cur.log if kind == "count"]
+        for table in ("hollard_monthly", "hollard_daily", "hollard_panics",
+                      "hollard_raf_claims"):
+            self.assertGreaterEqual(
+                counted.count(table), 3,
+                f"{table} must be counted stale, fresh and in total")
 
 
 if __name__ == "__main__":

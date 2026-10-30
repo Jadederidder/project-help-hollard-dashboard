@@ -149,6 +149,23 @@ def _incompleteness(payload) -> list:
         if unusable:
             problems.append(
                 f"{programme}: {unusable} panic pin(s) carry no coordinates")
+        # And the rows that never reached the payload at all. The exporter
+        # drops a source row whose date will not parse (_daily_rows), so it
+        # leaves no trace here: the list is still non-empty, the checks above
+        # still pass, and this sink would then reconcile that day out of the
+        # CRM and report success. The two checks above can only see a bad row
+        # that is present; this one is the only way to see one that is gone.
+        # A payload with no count at all is refused rather than trusted --
+        # "the exporter did not say" is not "nothing was dropped".
+        dropped = view.get("sourceDropped")
+        if dropped is None:
+            problems.append(
+                f"{programme}: the payload does not say how many source rows "
+                "were dropped, so a partial load cannot be ruled out")
+        elif dropped:
+            problems.append(
+                f"{programme}: the exporter dropped {dropped} source row(s) "
+                "it could not read, so this snapshot is partial")
     if not payload.get("raf"):
         problems.append("raf is empty")
     return problems
@@ -168,14 +185,31 @@ def _reconcile(cur, table, now, where, params, expected, label):
     older stamp is one whose source key has been withdrawn. Upserting alone
     would leave it behind for ever and still report success.
 
-    The matched rows are counted before the delete rather than after, and the
-    table is counted again afterwards and required to equal exactly what this
-    run put in. That second count is the real guard: it needs no threshold and
-    it fails on any predicate that took rows it should not have.
+    Three counts, in this order: the stale rows the delete will match, the
+    fresh rows this run just wrote, and -- after the delete -- the table
+    itself. The first two are compared against what was written BEFORE
+    anything is removed, so a bad write is reported as a bad write rather than
+    discovered later as a bad table. The third needs no threshold and fails on
+    any predicate that took rows it should not have. All of it is inside one
+    transaction, so a failure anywhere rolls the whole refresh back.
     """
     cur.execute(f"select count(*) from public.{table} where {where} "
                 "and synced_at <> %s", params + (now,))
     stale = cur.fetchone()[0]
+    cur.execute(f"select count(*) from public.{table} where {where} "
+                "and synced_at = %s", params + (now,))
+    fresh = cur.fetchone()[0]
+    # Prove the arithmetic BEFORE taking anything away. The end-state check
+    # below would catch a bad delete too -- it is one transaction, so nothing
+    # wrong ever commits -- but it catches it afterwards, which means the error
+    # says "the table is wrong" instead of "the write was wrong". These two
+    # counts separate those: if the insert above did not put in what we think
+    # it did, that is what gets reported, and the delete never runs.
+    if fresh != expected:
+        raise RuntimeError(
+            f"{label}: {fresh} rows carry this run's stamp but {expected} were "
+            f"written; refusing to delete {stale} older row(s) on the strength "
+            "of a count that does not add up")
     if stale:
         logger.info("CRM sink: %s has %d stale row(s) to drop", label, stale)
         cur.execute(f"delete from public.{table} where {where} "
@@ -200,19 +234,25 @@ def push(payload) -> bool:
         logger.info("CORE_DB_URL unset — skipping the CRM sink (summary.json is unaffected)")
         return False
 
-    monthly = list(_rows_monthly(payload))
-    daily = list(_rows_daily(payload))
-    panics = list(_rows_panics(payload))
-    raf = list(_rows_raf(payload))
-    logger.info("CRM sink: %d monthly, %d daily, %d panics, %d RAF",
-                len(monthly), len(daily), len(panics), len(raf))
-
+    # Validate FIRST. This used to run after the four row builders, which made
+    # it unreachable for the case it names most clearly: _rows_monthly reaches
+    # payload["views"][programme]["stats"] with a hard subscript, so a payload
+    # missing a programme raised KeyError here before the check could say
+    # "AIP: missing from the payload" and return False. A gate behind the
+    # thing it guards is not a gate.
     problems = _incompleteness(payload)
     if problems:
         logger.error("CRM sink: refusing an incomplete payload (%s). The CRM "
                      "keeps what it already had; summary.json is unaffected.",
                      "; ".join(problems))
         return False
+
+    monthly = list(_rows_monthly(payload))
+    daily = list(_rows_daily(payload))
+    panics = list(_rows_panics(payload))
+    raf = list(_rows_raf(payload))
+    logger.info("CRM sink: %d monthly, %d daily, %d panics, %d RAF",
+                len(monthly), len(daily), len(panics), len(raf))
 
     if os.environ.get("CORE_DRY_RUN", "").lower() == "true":
         logger.info("CORE_DRY_RUN=true — nothing written")
