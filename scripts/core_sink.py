@@ -31,6 +31,12 @@ PROGRAMMES = ("AIP", "SBMAC")
 # unreachable CRM must not be able to hold the public refresh open.
 CONNECT_TIMEOUT_SECONDS = 20
 
+# connect_timeout only bounds getting the connection. A statement that stalls
+# after that is just as able to eat the step's five minutes and stop
+# summary.json being committed, so the statements are bounded too. 90s leaves
+# the exporter the rest of its budget.
+STATEMENT_TIMEOUT_MS = 90_000
+
 # Writes go out in batches rather than one executemany over a whole table:
 # the real payload is ~1,700 daily rows and ~2,600 panic pins per programme.
 WRITE_BATCH = 200
@@ -127,6 +133,22 @@ def _incompleteness(payload) -> list:
         for key in ("stats", "daily", "panics"):
             if not view.get(key):
                 problems.append(f"{programme}: {key} is empty")
+        # Empty is not the only way a source goes wrong. A row whose date did
+        # not parse is dropped by _rows_daily, and a dropped row leaves the
+        # list non-empty -- so the checks above pass, the reconcile then
+        # removes that day from the CRM, and the run reports success. A
+        # partial snapshot has to be refused for the same reason an empty one
+        # is: this sink replaces what it writes.
+        undated = sum(1 for d in (view.get("daily") or [])
+                      if not (isinstance(d, dict) and d.get("date")))
+        if undated:
+            problems.append(
+                f"{programme}: {undated} daily row(s) carry no usable date")
+        unusable = sum(1 for pt in (view.get("panics") or [])
+                       if not pt or len(pt) != 2 or pt[0] is None or pt[1] is None)
+        if unusable:
+            problems.append(
+                f"{programme}: {unusable} panic pin(s) carry no coordinates")
     if not payload.get("raf"):
         problems.append("raf is empty")
     return problems
@@ -206,7 +228,10 @@ def push(payload) -> bool:
     # One transaction. A half-written refresh would make the CRM disagree with
     # the dashboard, which is worse than a refresh that did not happen.
     progs = (list(PROGRAMMES),)
-    with psycopg.connect(dsn, connect_timeout=CONNECT_TIMEOUT_SECONDS) as conn, \
+    with psycopg.connect(
+            dsn,
+            connect_timeout=CONNECT_TIMEOUT_SECONDS,
+            options=f"-c statement_timeout={STATEMENT_TIMEOUT_MS}") as conn, \
             conn.cursor() as cur:
         _write_batched(cur, """
             insert into public.hollard_monthly (programme, month_sort, month_label,
