@@ -219,6 +219,20 @@ def _watchdog(conn, deadline):
     is correct: a deadline checked in Python cannot interrupt work already in
     flight. Only cancelling it can.
 
+    Measured through psycopg 3.2.3 against a throwaway PostgreSQL 16.15
+    cluster, because this premise is the only reason the thread below
+    exists and it deserved more than an argument:
+
+      statement_timeout 400ms, executemany of 5 x pg_sleep(0.2)
+        -> COMPLETED in 1005ms, all 5 rows written
+      statement_timeout 300ms, executemany where the 3rd sleeps 2s
+        -> 57014 canceling statement due to statement timeout at 402ms
+
+    The first line is the gap: two and a half times its own bound, from
+    five executions. WRITE_BATCH is 200, so the real factor is far worse.
+    The second line is the bound working exactly as documented -- per
+    execution, which is precisely why it cannot save the batch.
+
     psycopg's cancel() is safe to call from another thread, so a timer does
     it. The cancelled statement raises, the transaction rolls back, and the
     caller's try/except leaves the dashboard's own steps to run.
