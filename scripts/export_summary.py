@@ -93,14 +93,21 @@ def _parse_daily_date(s):
 
 
 def _stats_rows(ws):
-    """Return list of monthly stat dicts, sorted chronologically."""
+    """Returns (rows, dropped) -- monthly stat dicts plus what was thrown out.
+
+    Same contract and same reason as _daily_rows: a month that will not parse
+    ('Jly-2026') is dropped here, leaving the list non-empty, and the sink
+    then reconciles that month out of hollard_monthly and reports success.
+    """
     rows = ws.get_all_values()
-    if not rows: return []
-    out = []
+    if not rows: return [], 0
+    out, dropped = [], 0
     for r in rows[1:]:
         if not r or not r[0].strip(): continue
         sort_key, label = _parse_month_dash(r[0])
-        if sort_key is None: continue
+        if sort_key is None:
+            dropped += 1
+            continue
         # Pad row to 11 cols defensively
         r = (r + [""] * 11)[:11]
         out.append({
@@ -116,17 +123,31 @@ def _stats_rows(ws):
             "usagePerDownloadsPct": _to_pct(r[8]),
         })
     out.sort(key=lambda x: x["monthSort"])
-    return out
+    return out, dropped
 
 
 def _daily_rows(ws):
+    """Returns (rows, dropped) -- the usable rows AND how many were thrown out.
+
+    The count is not diagnostics. A source row whose date will not parse is
+    dropped here, and a dropped row leaves `out` non-empty, so nothing
+    downstream can tell a complete snapshot from one missing a day. The CRM
+    sink replaces what it writes, so it would reconcile that day away and
+    report success. It can only refuse a partial load if this function tells
+    it one happened, which is why the count travels with the rows.
+
+    A blank first cell is a trailing empty sheet row, not a dropped reading,
+    so it is not counted.
+    """
     rows = ws.get_all_values()
-    if not rows: return []
-    out = []
+    if not rows: return [], 0
+    out, dropped = [], 0
     for r in rows[1:]:
         if not r or not r[0].strip(): continue
         date = _parse_daily_date(r[0])
-        if date is None: continue
+        if date is None:
+            dropped += 1
+            continue
         # Only first 4 cols matter; everything past col D is the stale
         # AIP "Active Apps by Month" pivot — confirmed dead since Jun 2023.
         r = (r + [""] * 4)[:4]
@@ -137,7 +158,7 @@ def _daily_rows(ws):
             "completed":  _to_int(r[3]),
         })
     out.sort(key=lambda x: x["date"])
-    return out
+    return out, dropped
 
 
 def _panic_points(ws):
@@ -163,13 +184,17 @@ def _panic_points(ws):
 
 
 def _raf_rows(ws):
+    """Returns (rows, dropped). See _stats_rows -- hollard_raf_claims is
+    reconciled the same way, so a dropped RAF month is lost the same way."""
     rows = ws.get_all_values()
-    if not rows: return []
-    out = []
+    if not rows: return [], 0
+    out, dropped = [], 0
     for r in rows[1:]:
         if not r or not r[0].strip(): continue
         sort_key, label = _parse_month_dash(r[0])
-        if sort_key is None: continue
+        if sort_key is None:
+            dropped += 1
+            continue
         r = (r + [""] * 4)[:4]
         out.append({
             "month":     label,
@@ -179,7 +204,7 @@ def _raf_rows(ws):
             "nonValid":  _to_int(r[3]),
         })
     out.sort(key=lambda x: x["monthSort"])
-    return out
+    return out, dropped
 
 
 def _kpis(stats, daily, panic_count):
@@ -248,13 +273,13 @@ def build_payload():
 
     def ws(title): return sh.worksheet(title)
 
-    aip_stats   = _stats_rows(ws("AIP Stats"))
-    sbmac_stats = _stats_rows(ws("SBMAC Stats"))
-    aip_daily   = _daily_rows(ws("AIP Daily call outs"))
-    sbmac_daily = _daily_rows(ws("SBMAC Daily Call outs"))
+    aip_stats,   aip_stats_dropped   = _stats_rows(ws("AIP Stats"))
+    sbmac_stats, sbmac_stats_dropped = _stats_rows(ws("SBMAC Stats"))
+    aip_daily,   aip_dropped   = _daily_rows(ws("AIP Daily call outs"))
+    sbmac_daily, sbmac_dropped = _daily_rows(ws("SBMAC Daily Call outs"))
     aip_panics  = _panic_points(ws("AIP Panics"))
     sbmac_panics = _panic_points(ws("SBMAC Panics"))
-    raf         = _raf_rows(ws("RAF Claims"))
+    raf, raf_dropped = _raf_rows(ws("RAF Claims"))
 
     payload = {
         "lastUpdated": datetime.now(timezone.utc)
@@ -266,17 +291,39 @@ def build_payload():
                 "stats":  aip_stats,
                 "daily":  aip_daily,
                 "panics": aip_panics,
+                "sourceDropped": aip_dropped + aip_stats_dropped,
             },
             "SBMAC": {
                 "kpis":   _kpis(sbmac_stats, sbmac_daily, len(sbmac_panics)),
                 "stats":  sbmac_stats,
                 "daily":  sbmac_daily,
                 "panics": sbmac_panics,
+                "sourceDropped": sbmac_dropped + sbmac_stats_dropped,
             },
         },
         "raf": raf,
+        # RAF is one shared table, not per programme, so its dropped count
+        # cannot live under views.<programme>.sourceDropped.
+        "rafSourceDropped": raf_dropped,
     }
     return payload
+
+
+def _public_view(payload):
+    """The payload minus the sink-only counts.
+
+    summary.json is served to whoever opens the Hollard dashboard, so how
+    many rows we failed to read out of the source sheet does not belong in
+    it -- that is ours to act on, not theirs to see. The counts still reach
+    the CRM sink, which gets the full payload, and main() logs them, so the
+    workflow run says plainly whether anything was dropped.
+    """
+    views = {
+        name: {k: v for k, v in view.items() if k != "sourceDropped"}
+        for name, view in payload.get("views", {}).items()
+    }
+    return {k: v for k, v in payload.items()
+            if k != "rafSourceDropped"} | {"views": views}
 
 
 def main():
@@ -289,14 +336,16 @@ def main():
     for view in ("AIP", "SBMAC"):
         v = payload["views"][view]
         logger.info(
-            "%s — %d stats months (latest %s), %d daily rows, %d panic points",
+            "%s — %d stats months (latest %s), %d daily rows, %d panic "
+            "points, %d source row(s) dropped",
             view, len(v["stats"]),
             v["kpis"].get("latestMonth"),
-            len(v["daily"]), len(v["panics"]),
+            len(v["daily"]), len(v["panics"]), v.get("sourceDropped", 0),
         )
-    logger.info("RAF — %d months", len(payload["raf"]))
+    logger.info("RAF — %d months, %d source row(s) dropped",
+                len(payload["raf"]), payload.get("rafSourceDropped", 0))
 
-    json_str = json.dumps(payload, indent=2, ensure_ascii=False)
+    json_str = json.dumps(_public_view(payload), indent=2, ensure_ascii=False)
     if DRY_RUN:
         logger.info("DRY_RUN=true — not writing.")
         print(json_str)
@@ -304,6 +353,20 @@ def main():
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUT_PATH.write_text(json_str + "\n", encoding="utf-8")
     logger.info("Wrote %s (%d bytes)", OUT_PATH, len(json_str) + 1)
+
+    # Second sink: the same payload into the Project Help CRM's core database,
+    # so the CRM can query Hollard instead of parsing this JSON file. Runs AFTER
+    # summary.json is written and never raises — the public dashboard's refresh
+    # must not fail because the CRM side is unavailable. Skips entirely when
+    # CORE_DB_URL is unset, which is the default.
+    try:
+        from core_sink import push as _push_to_core
+    except ImportError:
+        from scripts.core_sink import push as _push_to_core
+    try:
+        _push_to_core(payload)
+    except Exception:
+        logger.exception("CRM sink failed — summary.json is written and the dashboard is fine")
 
 
 if __name__ == "__main__":

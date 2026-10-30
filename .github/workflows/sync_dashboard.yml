@@ -58,6 +58,12 @@ jobs:
         env:
           GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          # Without this the CRM sink reads CORE_DB_URL as unset on every
+          # scheduled run, logs "skipping" and writes nothing -- which is
+          # exactly what had happened: all four hollard_* tables in core were
+          # still empty. Unset secret stays unset, so the sink is still
+          # optional and the dashboard refresh is unaffected either way.
+          CORE_DB_URL: ${{ secrets.CORE_DB_URL }}
         run: python scripts/export_summary.py
 
       # Outage resilience: the script already retries transient Google
