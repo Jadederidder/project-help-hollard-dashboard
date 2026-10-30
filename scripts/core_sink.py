@@ -52,6 +52,14 @@ STATEMENT_TIMEOUT_MS = 90_000
 # 120s is deliberately well under the 5 minutes: the sheet reads happen first
 # and take their share.
 SINK_BUDGET_SECONDS = 120
+# Reserved out of the budget so the COMMIT at the end has room inside it.
+# Without this the last statement could be allowed to run to the deadline and
+# the commit would then land outside the budget entirely.
+COMMIT_RESERVE_MS = 5_000
+# Below this there is not enough time left to do anything useful, and a
+# statement_timeout of 0 means NO timeout in Postgres -- the opposite of what
+# this code is for -- so the sink gives up rather than ever computing it.
+MIN_STATEMENT_MS = 1_000
 
 # Writes go out in batches rather than one executemany over a whole table:
 # the real payload is ~1,700 daily rows and ~2,600 panic pins per programme.
@@ -199,12 +207,35 @@ def _incompleteness(payload) -> list:
     return problems
 
 
-def _past(deadline, label):
-    """Raise if the sink has used its budget. Checked between operations."""
-    if deadline is not None and time.monotonic() > deadline:
+def _bounded(cur, deadline, label):
+    """Give the NEXT statement only the time the budget has left.
+
+    A check that only gates when a statement STARTS is not a bound. The
+    first version of this was exactly that: it refused to begin an operation
+    past the deadline, but a statement begun one millisecond before it could
+    still run for the full STATEMENT_TIMEOUT_MS -- so four of them inside one
+    reconcile could spend 360s against a 120s budget, and the workflow step
+    would be killed before Python raised anything. The reviewer was right and
+    my "bounded" claim was not true.
+
+    So this is called before EVERY statement, and it sets a transaction-local
+    statement_timeout to whatever is actually left. Each statement is then
+    bounded by the remaining budget at the moment it starts, and because that
+    figure only shrinks, the total cannot run past the deadline.
+
+    `set local` reverts at commit, so this never leaks into another
+    transaction on a pooled connection.
+    """
+    if deadline is None:
+        return
+    remaining_ms = int((deadline - time.monotonic()) * 1000) - COMMIT_RESERVE_MS
+    if remaining_ms < MIN_STATEMENT_MS:
         raise RuntimeError(
-            f"CRM sink exceeded its {SINK_BUDGET_SECONDS}s budget at {label}; "
-            "giving up so the dashboard's own commit and deploy still run")
+            f"CRM sink has {max(remaining_ms, 0)}ms left of its "
+            f"{SINK_BUDGET_SECONDS}s budget at {label}; giving up so the "
+            "dashboard's own commit and deploy still run")
+    cur.execute("set local statement_timeout = %s",
+                (min(remaining_ms, STATEMENT_TIMEOUT_MS),))
 
 
 def _write_batched(cur, sql, rows, deadline=None, label="write") -> int:
@@ -215,7 +246,7 @@ def _write_batched(cur, sql, rows, deadline=None, label="write") -> int:
     run out inside one of them.
     """
     for i in range(0, len(rows), WRITE_BATCH):
-        _past(deadline, f"{label} batch {i // WRITE_BATCH + 1}")
+        _bounded(cur, deadline, f"{label} batch {i // WRITE_BATCH + 1}")
         cur.executemany(sql, rows[i:i + WRITE_BATCH])
     return len(rows)
 
@@ -236,10 +267,11 @@ def _reconcile(cur, table, now, where, params, expected, label,
     any predicate that took rows it should not have. All of it is inside one
     transaction, so a failure anywhere rolls the whole refresh back.
     """
-    _past(deadline, f"reconcile {label}")
+    _bounded(cur, deadline, f"reconcile {label}: stale count")
     cur.execute(f"select count(*) from public.{table} where {where} "
                 "and synced_at <> %s", params + (now,))
     stale = cur.fetchone()[0]
+    _bounded(cur, deadline, f"reconcile {label}: fresh count")
     cur.execute(f"select count(*) from public.{table} where {where} "
                 "and synced_at = %s", params + (now,))
     fresh = cur.fetchone()[0]
@@ -256,12 +288,14 @@ def _reconcile(cur, table, now, where, params, expected, label,
             "of a count that does not add up")
     if stale:
         logger.info("CRM sink: %s has %d stale row(s) to drop", label, stale)
+        _bounded(cur, deadline, f"reconcile {label}: delete")
         cur.execute(f"delete from public.{table} where {where} "
                     "and synced_at <> %s", params + (now,))
         if cur.rowcount != stale:
             raise RuntimeError(
                 f"{label}: delete removed {cur.rowcount} rows but {stale} were "
                 "counted a moment earlier; rolling back")
+    _bounded(cur, deadline, f"reconcile {label}: end-state count")
     cur.execute(f"select count(*) from public.{table} where {where}", params)
     after = cur.fetchone()[0]
     if after != expected:

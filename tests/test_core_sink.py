@@ -163,6 +163,10 @@ class _FakeCursor:
         # proves nothing about what the database would be left holding.
         self.initial = {t: list(v) for t, v in self.tables.items()}
         self.rolled_back = False
+        # Every `set local statement_timeout` value the sink asked for, in
+        # order. This is how the budget's hardness is checked: a bound that is
+        # only applied once is not a bound.
+        self.timeouts = []
         self.rowcount = 0
         self.log = []
         self.batches = []
@@ -188,6 +192,12 @@ class _FakeCursor:
 
     def execute(self, sql, params=None):
         low = " ".join(sql.split()).lower()
+        if low.startswith("set local statement_timeout"):
+            # Postgres reads 0 as "no timeout", so recording these lets a
+            # test prove the sink never asks for that by accident.
+            self.timeouts.append(params[0] if params else None)
+            self.log.append(("timeout", None, self.timeouts[-1]))
+            return
         table = self._table(low)
         stale_scoped = "synced_at <> %s" in low
         fresh_scoped = "and synced_at = %s" in low
@@ -492,7 +502,8 @@ class TestPushRespectsItsBudget(_PushCase):
             with self.assertRaises(RuntimeError) as e:
                 cs.push(payload())
             msg = str(e.exception)
-            self.assertIn("exceeded its", msg)
+            self.assertIn("of its", msg)
+            self.assertIn("budget", msg)
             self.assertIn("so the dashboard", msg)
             self.assertFalse(fake.conn.committed)
             self.assertTrue(cur.rolled_back)
@@ -551,6 +562,135 @@ class TestPushRespectsItsBudget(_PushCase):
             self.assertTrue(cur.rolled_back)
         finally:
             _time.monotonic = real
+
+    def test_every_statement_is_given_only_the_time_that_is_left(self):
+        # The gap the reviewer found. The first version checked the clock
+        # before an operation and then let it run for the full
+        # STATEMENT_TIMEOUT_MS, so four statements inside one reconcile could
+        # spend 360s against a 120s budget and the workflow step would be
+        # killed before Python raised. A bound on when a statement STARTS is
+        # not a bound.
+        _fake, cur, ok = self.run_push(payload())
+        self.assertTrue(ok)
+        self.assertGreater(len(cur.timeouts), 10,
+                           "a timeout must be set before every statement")
+        for t in cur.timeouts:
+            self.assertIsNotNone(t)
+            self.assertGreater(t, 0, "0 means NO timeout in Postgres")
+            self.assertLessEqual(t, cs.STATEMENT_TIMEOUT_MS)
+        # Monotonically non-increasing: each statement gets what is left, so
+        # the total cannot run past the deadline.
+        self.assertEqual(cur.timeouts, sorted(cur.timeouts, reverse=True))
+
+    def test_no_statement_runs_without_a_fresh_bound(self):
+        # Order, not just presence: every real statement must be immediately
+        # preceded by a timeout. A single bound set once at the top would
+        # satisfy a count but not this.
+        _fake, cur, ok = self.run_push(payload())
+        self.assertTrue(ok)
+        kinds = [kind for kind, *_ in cur.log]
+        for i, kind in enumerate(kinds):
+            if kind in ("count", "delete", "write"):
+                self.assertEqual(
+                    kinds[i - 1], "timeout",
+                    f"{kind} at position {i} ran without a fresh bound")
+
+    def test_an_overrun_inside_reconciliation_raises(self):
+        # The specific regression asked for: expire the budget AFTER the
+        # writes, once reconciliation has started, rather than between
+        # batches.
+        import time as _time
+        real = _time.monotonic
+        state = {"expired": False}
+
+        def clock():
+            return real() + (cs.SINK_BUDGET_SECONDS + 1
+                             if state["expired"] else 0)
+
+        _time.monotonic = clock
+        try:
+            cur = _FakeCursor({"hollard_monthly": [LAST_RUN]})
+            real_execute = _FakeCursor.execute
+
+            def trip_on_first_reconcile_count(self, sql, params=None):
+                low = " ".join(sql.split()).lower()
+                if low.startswith("select count(*)"):
+                    state["expired"] = True
+                return real_execute(self, sql, params)
+
+            _FakeCursor.execute = trip_on_first_reconcile_count
+            try:
+                fake = _FakePsycopg(cur)
+                sys.modules["psycopg"] = fake
+                with self.assertRaises(RuntimeError) as e:
+                    cs.push(payload())
+                self.assertIn("reconcile", str(e.exception),
+                              "it must name the reconcile step it gave up in")
+                self.assertFalse(fake.conn.committed)
+                self.assertTrue(cur.rolled_back)
+            finally:
+                _FakeCursor.execute = real_execute
+        finally:
+            _time.monotonic = real
+
+    def _with_remaining(self, seconds_left):
+        """Run push() with the budget already mostly spent."""
+        import time as _time
+        real = _time.monotonic
+        # push() sets deadline = monotonic() + SINK_BUDGET_SECONDS on its
+        # first read, so shifting every LATER read forward leaves exactly
+        # `seconds_left` on the clock.
+        spent = cs.SINK_BUDGET_SECONDS - seconds_left
+        calls = {"n": 0}
+
+        def clock():
+            calls["n"] += 1
+            return real() + (0 if calls["n"] == 1 else spent)
+
+        _time.monotonic = clock
+        try:
+            cur = _FakeCursor()
+            fake = _FakePsycopg(cur)
+            sys.modules["psycopg"] = fake
+            try:
+                return cur, None, cs.push(payload())
+            except RuntimeError as e:
+                return cur, e, None
+        finally:
+            _time.monotonic = real
+
+    def test_the_reserve_is_held_back_from_the_statements(self):
+        # Written against BEHAVIOUR, not against the constant. My first
+        # version asserted max(timeouts) <= budget - COMMIT_RESERVE_MS, which
+        # zeroing the constant satisfied trivially -- and the 90s statement
+        # cap hid it as well, because the reserve only bites near the end of
+        # the budget. So this drives the clock to the end instead.
+        #
+        # 10s left: the statements must be handed 10s MINUS the reserve, not
+        # the whole 10s, or the commit would land outside the budget.
+        cur, err, ok = self._with_remaining(10)
+        self.assertIsNone(err, f"10s should still be workable, got {err}")
+        self.assertTrue(ok)
+        self.assertLessEqual(max(cur.timeouts), 10_000 - cs.COMMIT_RESERVE_MS)
+        # Measured as time WITHHELD, with a floor that does not come from the
+        # constant under test. My first attempt asserted
+        # `max(timeouts) < 10_000`, which passed with the reserve zeroed
+        # because sub-millisecond drift truncates 10000 to 9999 -- the test
+        # was off by one millisecond and proved nothing.
+        self.assertLessEqual(
+            max(cur.timeouts), 9_000,
+            "at least a second of the budget must be withheld for the commit")
+
+    def test_it_gives_up_while_there_is_still_time_to_commit(self):
+        # With only the reserve plus a sliver left there is no honest amount
+        # to hand a statement, so the sink stops rather than starting one it
+        # cannot bound.
+        cur, err, _ok = self._with_remaining(
+            (cs.COMMIT_RESERVE_MS + cs.MIN_STATEMENT_MS) / 1000 - 0.5)
+        self.assertIsNotNone(err, "it must refuse, not hand out a sliver")
+        self.assertIn("left of its", str(err))
+        self.assertEqual(cur.timeouts, [],
+                         "no statement may be bounded once it has given up")
 
     def test_a_healthy_run_is_nowhere_near_the_budget(self):
         # Guards against a budget so tight that a normal refresh trips it.
