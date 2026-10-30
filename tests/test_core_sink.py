@@ -163,12 +163,14 @@ class _FakeCursor:
         # proves nothing about what the database would be left holding.
         self.initial = {t: list(v) for t, v in self.tables.items()}
         self.rolled_back = False
+        self.cancelled = False
         # Every `set local statement_timeout` value the sink asked for, in
         # order. This is how the budget's hardness is checked: a bound that is
         # only applied once is not a bound.
         self.timeouts = []
         self.rowcount = 0
         self.log = []
+        self.statements_run = []
         self.batches = []
         self._result = 0
 
@@ -190,12 +192,30 @@ class _FakeCursor:
         self.tables = {t: list(v) for t, v in self.initial.items()}
         self.rolled_back = True
 
+    def cancel(self):
+        """Stands in for psycopg's thread-safe cancel()."""
+        self.cancelled = True
+
     def execute(self, sql, params=None):
         low = " ".join(sql.split()).lower()
-        if low.startswith("set local statement_timeout"):
-            # Postgres reads 0 as "no timeout", so recording these lets a
-            # test prove the sink never asks for that by accident.
-            self.timeouts.append(params[0] if params else None)
+        self.statements_run.append((low, params))
+        # This fake used to accept `set local statement_timeout = %s`, and
+        # that is why 57 tests passed over code that could not run: a real
+        # server rejects a bind parameter in SET with 42601, at the first
+        # statement of the transaction, so the sink never wrote a row. A fake
+        # that is more permissive than the server does not prove the code
+        # works, it proves the fake agrees with it. It refuses that form now.
+        if low.startswith("set ") and params:
+            raise AssertionError(
+                "PostgreSQL does not accept a bind parameter in SET (42601); "
+                "use select set_config(name, value, is_local)")
+        if low.startswith("select set_config('statement_timeout'"):
+            # The sink passes text, as set_config requires. Recorded as an
+            # int because the assertions compare it with numbers -- and
+            # because Postgres reads 0 as "no timeout", which is the one
+            # value that must never be asked for.
+            assert params, "set_config must be called with a value"
+            self.timeouts.append(int(params[0]))
             self.log.append(("timeout", None, self.timeouts[-1]))
             return
         table = self._table(low)
@@ -253,6 +273,9 @@ class _FakeConn:
 
     def cursor(self):
         return self._cur
+
+    def cancel(self):
+        self._cur.cancel()
 
     def commit(self):
         self.committed = True
@@ -535,17 +558,29 @@ class TestPushRespectsItsBudget(_PushCase):
         # remaining batches never to be sent.
         import time as _time
         real = _time.monotonic
-        # Call 1 sets the deadline. Call 2 is the monthly batch, call 3 the
-        # first daily batch; from call 4 -- the second daily batch -- the
-        # budget is gone.
-        calls = {"n": 0}
+        # Keyed on the WORK done, not on a count of clock reads. The first
+        # version of this test counted monotonic() calls and expired on the
+        # fourth; adding the watchdog introduced one more caller and the test
+        # then failed on "daily batch 1" -- right outcome, wrong reason, and
+        # it would have gone green again for the wrong reason just as easily.
+        # The budget now expires once the first full daily batch has been
+        # sent, whatever else reads the clock.
+        state = {"expired": False}
 
-        def expire_on_fourth_look():
-            calls["n"] += 1
-            over = calls["n"] >= 4
-            return real() + (cs.SINK_BUDGET_SECONDS + 1 if over else 0)
+        def clock():
+            return real() + (cs.SINK_BUDGET_SECONDS + 1
+                             if state["expired"] else 0)
 
-        _time.monotonic = expire_on_fourth_look
+        real_many = _FakeCursor.executemany
+
+        def expire_after_the_first_daily_batch(self, sql, seq):
+            out = real_many(self, sql, seq)
+            if "hollard_daily" in sql:
+                state["expired"] = True
+            return out
+
+        _time.monotonic = clock
+        _FakeCursor.executemany = expire_after_the_first_daily_batch
         try:
             cur = _FakeCursor()
             fake = _FakePsycopg(cur)
@@ -553,7 +588,8 @@ class TestPushRespectsItsBudget(_PushCase):
             # 253 daily rows -> batches of [200, 53]; the second must not go.
             with self.assertRaises(RuntimeError) as e:
                 cs.push(payload(aip_daily=250))
-            self.assertIn("daily batch 2", str(e.exception))
+            self.assertIn("daily batch 2", str(e.exception),
+                          "it must give up at the batch it could not bound")
             self.assertEqual(cur.batches[-1], cs.WRITE_BATCH,
                              "it stopped after the full first daily batch")
             self.assertEqual(sum(cur.batches), 4 + 200,
@@ -562,6 +598,7 @@ class TestPushRespectsItsBudget(_PushCase):
             self.assertTrue(cur.rolled_back)
         finally:
             _time.monotonic = real
+            _FakeCursor.executemany = real_many
 
     def test_every_statement_is_given_only_the_time_that_is_left(self):
         # The gap the reviewer found. The first version checked the clock
@@ -691,6 +728,197 @@ class TestPushRespectsItsBudget(_PushCase):
         self.assertIn("left of its", str(err))
         self.assertEqual(cur.timeouts, [],
                          "no statement may be bounded once it has given up")
+
+    def test_the_timeout_is_set_in_a_form_postgres_accepts(self):
+        # The defect that 57 passing tests did not catch, because the fake
+        # was more permissive than the server. Proven on the live PostgreSQL
+        # 17 server: `prepare as set local statement_timeout = $1` is
+        # rejected with 42601, while the set_config form is accepted. psycopg
+        # 3 binds server-side, so the old statement raised at the FIRST call
+        # in the transaction and the sink never wrote a row.
+        _fake, cur, ok = self.run_push(payload())
+        self.assertTrue(ok)
+        setters = [sql for sql, _p in cur.statements_run
+                   if "statement_timeout" in sql]
+        self.assertTrue(setters, "the sink must bound its statements")
+        for sql in setters:
+            self.assertIn("set_config", sql)
+            self.assertNotIn("set local", sql)
+
+    def test_the_fake_refuses_a_parameterised_set(self):
+        # Guards the guard. If the fake ever accepts that form again, the
+        # original defect can come back invisibly, so the fake's own refusal
+        # is held by a test rather than left to a reader to notice.
+        cur = _FakeCursor()
+        with self.assertRaises(AssertionError) as e:
+            cur.execute("set local statement_timeout = %s", (5000,))
+        self.assertIn("42601", str(e.exception))
+        # ...and the valid form is still accepted.
+        cur.execute("select set_config('statement_timeout', %s, true)",
+                    ("5000",))
+        self.assertEqual(cur.timeouts, [5000])
+
+    def test_a_watchdog_is_armed_and_always_stopped(self):
+        # statement_timeout bounds one statement; executemany sends up to 200
+        # of them. Only cancelling in-flight work makes the budget hard, so a
+        # timer does it -- and it must be stopped on the way out, or a
+        # cancel could land on a later transaction.
+        # Probed by behaviour, not by is_alive(): Timer.cancel() prevents the
+        # action but the thread winds down on its own time, so is_alive() can
+        # still be True immediately after a correct cancel. My first version
+        # of this test asserted that and failed for a reason that had nothing
+        # to do with the code.
+        armed, cancelled = [], []
+        real_timer = cs.threading.Timer
+
+        class _Spy(real_timer):
+            def __init__(self, interval, function, *a, **kw):
+                super().__init__(interval, function, *a, **kw)
+                armed.append(self)
+
+            def cancel(self):
+                cancelled.append(self)
+                return super().cancel()
+
+        cs.threading.Timer = _Spy
+        try:
+            _fake, cur, ok = self.run_push(payload())
+        finally:
+            cs.threading.Timer = real_timer
+        self.assertTrue(ok)
+        self.assertEqual(len(armed), 1, "exactly one watchdog per push")
+        self.assertTrue(armed[0].daemon, "it must not hold the process open")
+        # Twice, by design: once explicitly before the commit, and again in
+        # the context manager's finally, which is what makes it unconditional
+        # on every exit path including an exception. Timer.cancel() is
+        # idempotent, so the second is free.
+        self.assertGreaterEqual(len(cancelled), 1,
+                                "the watchdog must be stopped on the way out")
+        self.assertFalse(cur.cancelled,
+                         "a healthy run must never cancel the transaction")
+
+    def test_the_watchdog_stops_before_the_commit(self):
+        # Deliberate: cancelling a COMMIT leaves it unknown whether it
+        # applied, and a CRM that might or might not agree with the dashboard
+        # is worse than a refresh that plainly did not happen. So the timer
+        # must already be dead by the time commit() is called.
+        state = {"stopped": False}
+        real_timer = cs.threading.Timer
+
+        class _Spy(real_timer):
+            def cancel(self):
+                state["stopped"] = True
+                return super().cancel()
+
+        cur = _FakeCursor()
+        fake = _FakePsycopg(cur)
+        sys.modules["psycopg"] = fake
+        real_commit = _FakeConn.commit
+
+        def commit(self):
+            state["stopped_at_commit"] = state["stopped"]
+            return real_commit(self)
+
+        _FakeConn.commit = commit
+        cs.threading.Timer = _Spy
+        try:
+            self.assertTrue(cs.push(payload()))
+        finally:
+            cs.threading.Timer = real_timer
+            _FakeConn.commit = real_commit
+        self.assertIs(state["stopped_at_commit"], True,
+                      "the watchdog must be stopped BEFORE commit() is "
+                      "called, so a cancel can never land on the commit")
+
+    def test_the_watchdog_actually_fires_and_cancels(self):
+        # The gap my first pass left: deleting `timer.start()` kept all 61
+        # tests green, so nothing proved the watchdog did anything at all. It
+        # is the only thing that bounds a batch of 200 executions, so "it was
+        # constructed and cancelled" is not enough -- it has to fire.
+        #
+        # Tested on _watchdog directly, with a deadline already spent, so the
+        # timer interval is 0 and it fires at once. Going through push() for
+        # this would mean waiting out a 115-second timer.
+        class _Conn:
+            def __init__(self):
+                self.cancels = 0
+
+            def cancel(self):
+                self.cancels += 1
+
+        conn = _Conn()
+        with cs._watchdog(conn, cs.time.monotonic() - 1) as timer:
+            timer.join(2)
+            self.assertEqual(conn.cancels, 1,
+                             "a spent budget must cancel the transaction")
+
+    def test_the_watchdog_is_stopped_even_when_the_push_raises(self):
+        # Why the context manager's finally exists. On the happy path the
+        # explicit cancel() before commit already stops it, so removing the
+        # finally left all 64 tests green -- it only matters when the body
+        # raises, which is exactly when it matters most: a timer left running
+        # after the transaction is gone could fire cancel() on whatever the
+        # connection does next.
+        cancelled = []
+        real_timer = cs.threading.Timer
+
+        class _Spy(real_timer):
+            def cancel(self):
+                cancelled.append(self)
+                return super().cancel()
+
+        real_many = _FakeCursor.executemany
+
+        def blow_up(self, sql, seq):
+            raise RuntimeError("the insert exploded")
+
+        cs.threading.Timer = _Spy
+        _FakeCursor.executemany = blow_up
+        try:
+            cur = _FakeCursor()
+            fake = _FakePsycopg(cur)
+            sys.modules["psycopg"] = fake
+            with self.assertRaises(RuntimeError):
+                cs.push(payload())
+        finally:
+            cs.threading.Timer = real_timer
+            _FakeCursor.executemany = real_many
+        self.assertTrue(cancelled,
+                        "the watchdog must be stopped on the exception path "
+                        "too, not only before a successful commit")
+        self.assertFalse(fake.conn.committed)
+
+    def test_the_watchdog_does_not_fire_when_stopped_in_time(self):
+        # The other half: a healthy run must never cancel. Armed with a
+        # deadline far enough out that only an unstopped timer could fire.
+        class _Conn:
+            def __init__(self):
+                self.cancels = 0
+
+            def cancel(self):
+                self.cancels += 1
+
+        conn = _Conn()
+        with cs._watchdog(conn, cs.time.monotonic() + 3600) as timer:
+            pass
+        timer.join(1)
+        self.assertEqual(conn.cancels, 0,
+                         "a stopped watchdog must never cancel")
+
+    def test_the_watchdog_survives_a_connection_that_cannot_cancel(self):
+        # It runs on a timer thread, so an exception in it would be swallowed
+        # by threading and lost. It must log and carry on rather than die
+        # silently -- and must not take the process with it.
+        class _Conn:
+            def cancel(self):
+                raise RuntimeError("connection already gone")
+
+        with self.assertLogs("core_sink", level="ERROR") as logs:
+            with cs._watchdog(_Conn(), cs.time.monotonic() - 1) as timer:
+                timer.join(2)
+        self.assertTrue(
+            any("cancelling the transaction failed" in m for m in logs.output),
+            f"the failure must be logged, got {logs.output}")
 
     def test_no_helper_can_be_called_without_a_deadline(self):
         # The budget helpers used to take deadline=None and skip the bound

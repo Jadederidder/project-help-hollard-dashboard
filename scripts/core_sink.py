@@ -19,7 +19,9 @@ Schema: design/migrations/0008_hollard.sql in the CRM repo.
 from __future__ import annotations
 
 import logging
+import contextlib
 import os
+import threading
 import time
 from datetime import datetime, timezone
 
@@ -207,6 +209,46 @@ def _incompleteness(payload) -> list:
     return problems
 
 
+@contextlib.contextmanager
+def _watchdog(conn, deadline):
+    """Cancel whatever the server is doing if the budget runs out.
+
+    statement_timeout bounds ONE statement. executemany() sends up to
+    WRITE_BATCH executions, so a batch of slow ones can outlive the budget
+    even with every statement bounded. That was the reviewer's point and it
+    is correct: a deadline checked in Python cannot interrupt work already in
+    flight. Only cancelling it can.
+
+    psycopg's cancel() is safe to call from another thread, so a timer does
+    it. The cancelled statement raises, the transaction rolls back, and the
+    caller's try/except leaves the dashboard's own steps to run.
+
+    The timer is stopped BEFORE commit, deliberately. Cancelling a COMMIT
+    leaves it genuinely unknown whether it applied, and a CRM that might or
+    might not agree with the dashboard is worse than a refresh that plainly
+    did not happen. COMMIT_RESERVE_MS is the headroom for the commit
+    instead -- by then every statement has run, so it is the fastest part.
+    """
+    seconds = max(deadline - time.monotonic() - COMMIT_RESERVE_MS / 1000, 0)
+
+    def fire():
+        logger.error("CRM sink: %ss budget spent; cancelling the transaction "
+                     "so the dashboard's commit and deploy still run",
+                     SINK_BUDGET_SECONDS)
+        try:
+            conn.cancel()
+        except Exception:               # noqa: BLE001 - nothing left to try
+            logger.exception("CRM sink: cancelling the transaction failed")
+
+    timer = threading.Timer(seconds, fire)
+    timer.daemon = True                 # must never hold the process open
+    timer.start()
+    try:
+        yield timer
+    finally:
+        timer.cancel()
+
+
 def _bounded(cur, deadline, label):
     """Give the NEXT statement only the time the budget has left.
 
@@ -237,8 +279,23 @@ def _bounded(cur, deadline, label):
             f"CRM sink has {max(remaining_ms, 0)}ms left of its "
             f"{SINK_BUDGET_SECONDS}s budget at {label}; giving up so the "
             "dashboard's own commit and deploy still run")
-    cur.execute("set local statement_timeout = %s",
-                (min(remaining_ms, STATEMENT_TIMEOUT_MS),))
+    # set_config(), NOT `set local ... = %s`. PostgreSQL does not accept a
+    # bind parameter in SET, and psycopg 3 binds server-side, so that form
+    # raises 42601 at the FIRST call here -- the first statement of the
+    # transaction. The sink would never have written a row, and the caller's
+    # try/except would have swallowed it into a log line. Proven on the live
+    # PostgreSQL 17 server rather than taken on trust:
+    #   prepare as set local statement_timeout = $1
+    #     -> REJECTED: 42601 syntax error at or near "set"
+    #   prepare as select set_config('statement_timeout', $1, true)
+    #     -> ACCEPTED
+    #   set local statement_timeout = 5000  (literal, the control)
+    #     -> ACCEPTED
+    # set_config's third argument is is_local, so the transaction-local scope
+    # is exactly what `set local` gave. The value goes as text; a bare number
+    # is read as milliseconds.
+    cur.execute("select set_config('statement_timeout', %s, true)",
+                (str(min(remaining_ms, STATEMENT_TIMEOUT_MS)),))
 
 
 def _write_batched(cur, sql, rows, deadline, label) -> int:
@@ -353,7 +410,8 @@ def push(payload) -> bool:
             dsn,
             connect_timeout=CONNECT_TIMEOUT_SECONDS,
             options=f"-c statement_timeout={STATEMENT_TIMEOUT_MS}") as conn, \
-            conn.cursor() as cur:
+            conn.cursor() as cur, \
+            _watchdog(conn, deadline) as watchdog:
         _write_batched(cur, """
             insert into public.hollard_monthly (programme, month_sort, month_label,
               monthly_downloads, active_customers, total_downloads, adoption_pct,
@@ -419,6 +477,9 @@ def push(payload) -> bool:
                    len({r[0] for r in raf}), "hollard_raf_claims",
                    deadline)
 
+        # Every statement has run, so the watchdog's job is done. Stop it
+        # before the commit, so a cancel can never land on the commit itself.
+        watchdog.cancel()
         conn.commit()
 
     logger.info("CRM sink: written")
