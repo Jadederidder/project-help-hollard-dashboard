@@ -184,6 +184,18 @@ def _incompleteness(payload) -> list:
                 "it could not read, so this snapshot is partial")
     if not payload.get("raf"):
         problems.append("raf is empty")
+    # RAF is one shared table rather than per programme, so its dropped count
+    # sits at the top level. Same rule as the per-programme one: absent is
+    # refused, not assumed to mean nothing was lost.
+    raf_dropped = payload.get("rafSourceDropped")
+    if raf_dropped is None:
+        problems.append(
+            "the payload does not say how many RAF source rows were dropped, "
+            "so a partial load cannot be ruled out")
+    elif raf_dropped:
+        problems.append(
+            f"the exporter dropped {raf_dropped} RAF source row(s) it could "
+            "not read, so this snapshot is partial")
     return problems
 
 

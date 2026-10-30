@@ -93,14 +93,21 @@ def _parse_daily_date(s):
 
 
 def _stats_rows(ws):
-    """Return list of monthly stat dicts, sorted chronologically."""
+    """Returns (rows, dropped) -- monthly stat dicts plus what was thrown out.
+
+    Same contract and same reason as _daily_rows: a month that will not parse
+    ('Jly-2026') is dropped here, leaving the list non-empty, and the sink
+    then reconciles that month out of hollard_monthly and reports success.
+    """
     rows = ws.get_all_values()
-    if not rows: return []
-    out = []
+    if not rows: return [], 0
+    out, dropped = [], 0
     for r in rows[1:]:
         if not r or not r[0].strip(): continue
         sort_key, label = _parse_month_dash(r[0])
-        if sort_key is None: continue
+        if sort_key is None:
+            dropped += 1
+            continue
         # Pad row to 11 cols defensively
         r = (r + [""] * 11)[:11]
         out.append({
@@ -116,7 +123,7 @@ def _stats_rows(ws):
             "usagePerDownloadsPct": _to_pct(r[8]),
         })
     out.sort(key=lambda x: x["monthSort"])
-    return out
+    return out, dropped
 
 
 def _daily_rows(ws):
@@ -177,13 +184,17 @@ def _panic_points(ws):
 
 
 def _raf_rows(ws):
+    """Returns (rows, dropped). See _stats_rows -- hollard_raf_claims is
+    reconciled the same way, so a dropped RAF month is lost the same way."""
     rows = ws.get_all_values()
-    if not rows: return []
-    out = []
+    if not rows: return [], 0
+    out, dropped = [], 0
     for r in rows[1:]:
         if not r or not r[0].strip(): continue
         sort_key, label = _parse_month_dash(r[0])
-        if sort_key is None: continue
+        if sort_key is None:
+            dropped += 1
+            continue
         r = (r + [""] * 4)[:4]
         out.append({
             "month":     label,
@@ -193,7 +204,7 @@ def _raf_rows(ws):
             "nonValid":  _to_int(r[3]),
         })
     out.sort(key=lambda x: x["monthSort"])
-    return out
+    return out, dropped
 
 
 def _kpis(stats, daily, panic_count):
@@ -241,13 +252,13 @@ def build_payload():
 
     def ws(title): return sh.worksheet(title)
 
-    aip_stats   = _stats_rows(ws("AIP Stats"))
-    sbmac_stats = _stats_rows(ws("SBMAC Stats"))
+    aip_stats,   aip_stats_dropped   = _stats_rows(ws("AIP Stats"))
+    sbmac_stats, sbmac_stats_dropped = _stats_rows(ws("SBMAC Stats"))
     aip_daily,   aip_dropped   = _daily_rows(ws("AIP Daily call outs"))
     sbmac_daily, sbmac_dropped = _daily_rows(ws("SBMAC Daily Call outs"))
     aip_panics  = _panic_points(ws("AIP Panics"))
     sbmac_panics = _panic_points(ws("SBMAC Panics"))
-    raf         = _raf_rows(ws("RAF Claims"))
+    raf, raf_dropped = _raf_rows(ws("RAF Claims"))
 
     payload = {
         "lastUpdated": datetime.now(timezone.utc)
@@ -259,19 +270,39 @@ def build_payload():
                 "stats":  aip_stats,
                 "daily":  aip_daily,
                 "panics": aip_panics,
-                "sourceDropped": aip_dropped,
+                "sourceDropped": aip_dropped + aip_stats_dropped,
             },
             "SBMAC": {
                 "kpis":   _kpis(sbmac_stats, sbmac_daily, len(sbmac_panics)),
                 "stats":  sbmac_stats,
                 "daily":  sbmac_daily,
                 "panics": sbmac_panics,
-                "sourceDropped": sbmac_dropped,
+                "sourceDropped": sbmac_dropped + sbmac_stats_dropped,
             },
         },
         "raf": raf,
+        # RAF is one shared table, not per programme, so its dropped count
+        # cannot live under views.<programme>.sourceDropped.
+        "rafSourceDropped": raf_dropped,
     }
     return payload
+
+
+def _public_view(payload):
+    """The payload minus the sink-only counts.
+
+    summary.json is served to whoever opens the Hollard dashboard, so how
+    many rows we failed to read out of the source sheet does not belong in
+    it -- that is ours to act on, not theirs to see. The counts still reach
+    the CRM sink, which gets the full payload, and main() logs them, so the
+    workflow run says plainly whether anything was dropped.
+    """
+    views = {
+        name: {k: v for k, v in view.items() if k != "sourceDropped"}
+        for name, view in payload.get("views", {}).items()
+    }
+    return {k: v for k, v in payload.items()
+            if k != "rafSourceDropped"} | {"views": views}
 
 
 def main():
@@ -290,9 +321,10 @@ def main():
             v["kpis"].get("latestMonth"),
             len(v["daily"]), len(v["panics"]), v.get("sourceDropped", 0),
         )
-    logger.info("RAF — %d months", len(payload["raf"]))
+    logger.info("RAF — %d months, %d source row(s) dropped",
+                len(payload["raf"]), payload.get("rafSourceDropped", 0))
 
-    json_str = json.dumps(payload, indent=2, ensure_ascii=False)
+    json_str = json.dumps(_public_view(payload), indent=2, ensure_ascii=False)
     if DRY_RUN:
         logger.info("DRY_RUN=true — not writing.")
         print(json_str)

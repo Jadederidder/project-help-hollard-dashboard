@@ -19,7 +19,7 @@ import core_sink as cs
 
 def payload(aip_stats=2, aip_daily=3, aip_panics=4,
             sbmac_stats=2, sbmac_daily=3, sbmac_panics=4, raf=2,
-            aip_dropped=0, sbmac_dropped=0):
+            aip_dropped=0, sbmac_dropped=0, raf_dropped=0):
     """A structurally complete payload, sized small enough to reason about."""
     def view(n_stats, n_daily, n_panics, tag, dropped):
         return {
@@ -45,6 +45,7 @@ def payload(aip_stats=2, aip_daily=3, aip_panics=4,
                                 sbmac_dropped)},
         "raf": [{"monthSort": f"2025-{i:02d}", "month": f"M{i}", "calls": i,
                  "valid": i, "nonValid": 0} for i in range(1, raf + 1)],
+        "rafSourceDropped": raf_dropped,
     }
 
 
@@ -112,6 +113,23 @@ class TestIncompleteness(unittest.TestCase):
         self.assertIn(
             "SBMAC: the payload does not say how many source rows were "
             "dropped, so a partial load cannot be ruled out",
+            cs._incompleteness(p))
+
+    def test_dropped_raf_rows_are_a_problem(self):
+        # hollard_raf_claims is reconciled the same way hollard_daily is, so
+        # a RAF month the exporter could not read is lost the same way. The
+        # count is top-level because RAF is one shared table.
+        self.assertIn(
+            "the exporter dropped 1 RAF source row(s) it could not read, so "
+            "this snapshot is partial",
+            cs._incompleteness(payload(raf_dropped=1)))
+
+    def test_a_payload_that_does_not_say_what_raf_dropped_is_refused(self):
+        p = payload()
+        del p["rafSourceDropped"]
+        self.assertIn(
+            "the payload does not say how many RAF source rows were dropped, "
+            "so a partial load cannot be ruled out",
             cs._incompleteness(p))
 
     def test_zero_dropped_is_not_a_problem(self):
