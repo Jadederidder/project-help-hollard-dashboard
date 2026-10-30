@@ -239,20 +239,29 @@ def _watchdog(conn, deadline):
     returns just as fire() starts.
 
     So the exposed timer also carries `fired`, and the shutdown joins the
-    thread and refuses to commit if it is set. Joining matters for the
-    narrower window too: once the timer thread has left its wait, `fired`
-    is a few instructions away from being set, and join() is what makes the
-    main thread see it. A late cancel then produces a rollback and the
+    thread and then commits only if the thread is gone AND it never fired.
+    Both halves are needed: `fired` alone misses a thread that has decided
+    to run the callback but has not reached its first line, because the
+    bounded join can expire with the flag still false; liveness alone
+    misses the ordinary case of a callback that fired and finished inside
+    the join window. A late cancel then produces a rollback and the
     previous run's rows, which is the outcome this design wanted all along.
     """
     seconds = max(deadline - time.monotonic() - COMMIT_RESERVE_MS / 1000, 0)
     fired = threading.Event()
 
     def fire():
-        # Set FIRST, ahead of anything that can block, log or raise. The
-        # main thread reads it to decide whether committing is still safe,
-        # so it has to be true from the moment the callback starts running,
-        # not from the moment it finishes.
+        # Set first, ahead of anything that can block, log or raise, so the
+        # flag is true from the moment the callback starts rather than from
+        # the moment it finishes.
+        #
+        # Being honest about what this ordering is worth: on its own it did
+        # not close the gap, and now that the shutdown also refuses a
+        # thread still alive after the join, it no longer carries the
+        # refusal by itself either. Setting it last would be caught by that
+        # liveness check instead. It stays first because it costs nothing
+        # and narrows the window a reader has to reason about -- defence in
+        # depth, not the load-bearing part.
         fired.set()
         logger.error("CRM sink: %ss budget spent; cancelling the transaction "
                      "so the dashboard's commit and deploy still run",
@@ -545,19 +554,33 @@ def push(payload) -> bool:
 
         # Every statement has run, so the watchdog's job is done. Stopping
         # it is not enough on its own: Timer.cancel() cannot stop a fire()
-        # that has already begun, so join the thread and then refuse to
-        # commit if it fired. A cancel landing on the COMMIT is the one
-        # outcome this whole arrangement exists to avoid, and the join is
-        # bounded by the same reserve the commit gets.
+        # that has already begun. So stop it, wait for the thread, and then
+        # commit only if BOTH of these hold -- the thread is gone, and it
+        # never fired.
+        #
+        # Both, because either alone leaves a hole. `fired` alone misses a
+        # thread that has decided to run the callback but has not reached
+        # its first line yet: the bounded join can expire with the flag
+        # still false, and the commit would then race the cancel after all.
+        # `is_alive()` alone misses a callback that fired and finished
+        # inside the join window, which is the ordinary case.
+        #
+        # A thread still alive after the whole commit reserve is treated as
+        # unsafe rather than probably-fine. That can refuse a run that was
+        # in fact healthy, if the interpreter starves the timer thread for
+        # five seconds. The cost of being wrong that way is the CRM keeping
+        # the previous run and the log saying why; the cost of being wrong
+        # the other way is a commit nobody can vouch for. Everything else
+        # in this file fails closed, and so does this.
         watchdog.cancel()
         watchdog.join(COMMIT_RESERVE_MS / 1000)
-        if watchdog.fired.is_set():
+        if watchdog.is_alive() or watchdog.fired.is_set():
             raise RuntimeError(
-                "CRM sink: the budget watchdog fired as the last statement "
-                "finished, so the transaction is being cancelled; refusing "
-                "to commit on top of that cancel, which leaves the CRM on "
-                "the previous run rather than on a snapshot nobody can "
-                "vouch for")
+                "CRM sink: the budget watchdog was still live or had already "
+                "fired when the last statement finished, so a cancel may be "
+                "on its way to the server; refusing to commit on top of one, "
+                "which leaves the CRM on the previous run rather than on a "
+                "snapshot nobody can vouch for")
         conn.commit()
 
     logger.info("CRM sink: written")

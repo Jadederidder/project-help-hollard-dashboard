@@ -11,6 +11,7 @@
 import os
 import sys
 import pathlib
+import threading
 import time
 import unittest
 
@@ -919,14 +920,17 @@ class TestPushRespectsItsBudget(_PushCase):
                         "or this tests nothing about waiting for it")
 
     def test_a_cancel_slower_than_the_join_still_refuses_the_commit(self):
-        # Why fired.set() is the FIRST line of fire() rather than the last.
-        # The join is bounded by the commit reserve, and so is the cancel,
-        # so the two can expire together: the main thread stops waiting
-        # while the timer thread is still inside cancel_safe(). Setting the
-        # flag last would have the main thread read False at exactly that
-        # moment and commit on top of a cancel in flight -- the same defect
-        # one layer further in. Setting it first makes the refusal hold even
-        # when the join gives up.
+        # A cancel slower than the join: the join is bounded by the commit
+        # reserve and so is the cancel, so the two can expire together and
+        # the main thread stops waiting while the timer thread is still
+        # inside cancel_safe(). It must still refuse.
+        #
+        # Note what this does and does not pin. It was written to prove
+        # fired.set() belongs first, and it did -- but the shutdown now
+        # also refuses a thread still alive after the join, which catches
+        # the same case on its own. So this no longer makes the ordering
+        # load-bearing; it holds the refusal for a cancel in flight, by
+        # whichever of the two conditions sees it first.
         #
         # The reserve is shrunk for the test so the join expires in 10ms
         # against a cancel that takes 500, rather than waiting out the real
@@ -958,6 +962,58 @@ class TestPushRespectsItsBudget(_PushCase):
         self.assertFalse(fake.conn.committed,
                          "a join that gives up must not be read as 'the "
                          "watchdog never fired'")
+
+    def test_a_callback_that_outlasts_the_join_refuses_the_commit(self):
+        # The narrowest window, and the one `fired` alone could not close.
+        # Timer.run() checks `finished` and then calls the callback; a
+        # thread descheduled between those two has decided to fire but has
+        # not reached fired.set(), so a bounded join can expire with the
+        # flag still false and the main thread would commit into a cancel
+        # that is still coming. Liveness after the join is what catches it.
+        #
+        # Deterministic rather than hopeful: the reserve is shrunk so the
+        # join expires in 10ms, and the thread is held for 300 before it
+        # touches the callback. `fired` is provably false at the moment of
+        # the decision, which is the whole point of the case.
+        real_timer, real_reserve = cs.threading.Timer, cs.COMMIT_RESERVE_MS
+        started = threading.Event()
+        timers = []
+
+        class _Stalled(real_timer):
+            def __init__(self, interval, function, *a, **kw):
+                super().__init__(interval, function, *a, **kw)
+                timers.append(self)
+
+            def run(self):
+                started.set()
+                time.sleep(0.3)         # decided to fire, not yet fired
+                self.function()
+
+        cur = _FakeCursor()
+        fake = _FakePsycopg(cur)
+        sys.modules["psycopg"] = fake
+        cs.threading.Timer = _Stalled
+        cs.COMMIT_RESERVE_MS = 10
+        try:
+            with self.assertRaises(RuntimeError) as e:
+                cs.push(payload())
+            self.assertTrue(started.is_set(), "the stall never happened")
+            self.assertFalse(
+                timers[0].fired.is_set(),
+                "if the flag is already set this is the other test, not "
+                "this one -- the gap being covered is precisely a thread "
+                "that has not reached fired.set() yet")
+        finally:
+            cs.threading.Timer = real_timer
+            cs.COMMIT_RESERVE_MS = real_reserve
+            for t in timers:            # let the stalled thread finish
+                t.join(2)
+        self.assertIn("refusing to commit", str(e.exception))
+        self.assertFalse(fake.conn.committed,
+                         "a join that expires on a live thread must not be "
+                         "read as 'the watchdog never fired'")
+        self.assertEqual(cur.tables, cur.initial,
+                         "and the CRM keeps the previous run's rows")
 
     def test_the_sink_cancels_with_the_deprecated_call_nowhere_in_sight(self):
         # psycopg 3.2 deprecated cancel() -- it opens an unencrypted,
