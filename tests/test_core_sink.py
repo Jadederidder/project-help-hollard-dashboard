@@ -10,6 +10,8 @@
 
 import os
 import sys
+import pathlib
+import time
 import unittest
 
 sys.path.insert(0, os.path.join(
@@ -164,6 +166,9 @@ class _FakeCursor:
         self.initial = {t: list(v) for t, v in self.tables.items()}
         self.rolled_back = False
         self.cancelled = False
+        # The timeout the watchdog handed cancel_safe(), so a call that
+        # quietly drops it cannot pass.
+        self.cancel_timeout = None
         # Every `set local statement_timeout` value the sink asked for, in
         # order. This is how the budget's hardness is checked: a bound that is
         # only applied once is not a bound.
@@ -192,9 +197,10 @@ class _FakeCursor:
         self.tables = {t: list(v) for t, v in self.initial.items()}
         self.rolled_back = True
 
-    def cancel(self):
-        """Stands in for psycopg's thread-safe cancel()."""
+    def cancel(self, timeout=None):
+        """Stands in for psycopg's cancel_safe()."""
         self.cancelled = True
+        self.cancel_timeout = timeout
 
     def execute(self, sql, params=None):
         low = " ".join(sql.split()).lower()
@@ -274,8 +280,19 @@ class _FakeConn:
     def cursor(self):
         return self._cur
 
+    def cancel_safe(self, *, timeout=None):
+        self._cur.cancel(timeout)
+
     def cancel(self):
-        self._cur.cancel()
+        # Not a server behaviour -- our own decision, held here so it cannot
+        # be undone silently. psycopg 3.2 deprecated cancel(): it opens an
+        # unencrypted, unauthenticated connection and takes no timeout, so
+        # on the watchdog's daemon thread a stalled cancel would be
+        # invisible. Verified present in the pinned psycopg 3.2.3:
+        # Connection.cancel_safe(*, timeout: float = 30.0).
+        raise AssertionError(
+            "the watchdog must call cancel_safe(timeout=...), not the "
+            "cancel() psycopg deprecated in 3.2")
 
     def commit(self):
         self.committed = True
@@ -284,10 +301,13 @@ class _FakeConn:
 class _FakePsycopg:
     def __init__(self, cur):
         self._cur, self.conn, self.kwargs = cur, None, None
+        # Overridden by the tests that need a connection which behaves
+        # badly in one specific way.
+        self.conn_class = _FakeConn
 
     def connect(self, dsn, **kw):
         self.kwargs = kw
-        self.conn = _FakeConn(self._cur)
+        self.conn = self.conn_class(self._cur)
         return self.conn
 
 
@@ -830,6 +850,127 @@ class TestPushRespectsItsBudget(_PushCase):
                       "the watchdog must be stopped BEFORE commit() is "
                       "called, so a cancel can never land on the commit")
 
+    def test_a_late_fire_refuses_the_commit(self):
+        # Timer.cancel() only clears the wait. A fire() that has already
+        # begun runs to completion regardless, so "stop it before the
+        # commit" did not actually hold: the main thread could call
+        # cancel(), get nothing, and commit while the timer thread cancelled
+        # underneath it. CodeRabbit caught it, and the window is not
+        # theoretical -- the last _bounded() call sets a statement_timeout
+        # that expires at the very instant the timer fires, so a statement
+        # that uses its whole bound returns just as fire() starts.
+        #
+        # The spy models that exactly: cancel() returns having already run
+        # the callback. The sink must then roll back, not commit.
+        real_timer = cs.threading.Timer
+
+        class _Raced(real_timer):
+            def cancel(self):
+                out = super().cancel()
+                self.function()         # the callback was already running
+                return out
+
+        cur = _FakeCursor()
+        fake = _FakePsycopg(cur)
+        sys.modules["psycopg"] = fake
+        cs.threading.Timer = _Raced
+        try:
+            with self.assertRaises(RuntimeError) as e:
+                cs.push(payload())
+        finally:
+            cs.threading.Timer = real_timer
+        self.assertIn("refusing to commit", str(e.exception))
+        self.assertFalse(fake.conn.committed,
+                         "a cancel in flight must never be committed on top "
+                         "of -- that is the ambiguous outcome the whole "
+                         "arrangement exists to avoid")
+        self.assertTrue(cur.rolled_back)
+        self.assertEqual(cur.tables, cur.initial,
+                         "and the CRM must be left holding the previous "
+                         "run's rows, not a half-written snapshot")
+
+    def test_a_fire_that_is_still_starting_up_is_waited_for(self):
+        # The narrower half, and the reason the join() is there rather than
+        # just the flag. Once the timer thread has left its wait it is a few
+        # instructions away from setting `fired`; a main thread that read the
+        # flag without joining could see False and commit anyway. So this
+        # spy enters the callback but stalls before it, which is precisely
+        # that window. Dropping the join leaves the sink committing here.
+        real_timer = cs.threading.Timer
+
+        class _Stalled(real_timer):
+            def run(self):
+                time.sleep(0.05)        # inside fire(), before fired.set()
+                self.function()
+
+        cur = _FakeCursor()
+        fake = _FakePsycopg(cur)
+        sys.modules["psycopg"] = fake
+        cs.threading.Timer = _Stalled
+        try:
+            with self.assertRaises(RuntimeError) as e:
+                cs.push(payload())
+        finally:
+            cs.threading.Timer = real_timer
+        self.assertIn("refusing to commit", str(e.exception))
+        self.assertFalse(fake.conn.committed)
+        self.assertTrue(cur.cancelled,
+                        "the stalled callback must have gone on to cancel, "
+                        "or this tests nothing about waiting for it")
+
+    def test_a_cancel_slower_than_the_join_still_refuses_the_commit(self):
+        # Why fired.set() is the FIRST line of fire() rather than the last.
+        # The join is bounded by the commit reserve, and so is the cancel,
+        # so the two can expire together: the main thread stops waiting
+        # while the timer thread is still inside cancel_safe(). Setting the
+        # flag last would have the main thread read False at exactly that
+        # moment and commit on top of a cancel in flight -- the same defect
+        # one layer further in. Setting it first makes the refusal hold even
+        # when the join gives up.
+        #
+        # The reserve is shrunk for the test so the join expires in 10ms
+        # against a cancel that takes 500, rather than waiting out the real
+        # five seconds.
+        real_timer, real_reserve = cs.threading.Timer, cs.COMMIT_RESERVE_MS
+
+        class _Immediate(real_timer):
+            def run(self):
+                self.function()
+
+        class _SlowCancel(_FakeConn):
+            def cancel_safe(self, *, timeout=None):
+                time.sleep(0.5)         # still in flight when join gives up
+                return super().cancel_safe(timeout=timeout)
+
+        cur = _FakeCursor()
+        fake = _FakePsycopg(cur)
+        fake.conn_class = _SlowCancel
+        sys.modules["psycopg"] = fake
+        cs.threading.Timer = _Immediate
+        cs.COMMIT_RESERVE_MS = 10
+        try:
+            with self.assertRaises(RuntimeError) as e:
+                cs.push(payload())
+        finally:
+            cs.threading.Timer = real_timer
+            cs.COMMIT_RESERVE_MS = real_reserve
+        self.assertIn("refusing to commit", str(e.exception))
+        self.assertFalse(fake.conn.committed,
+                         "a join that gives up must not be read as 'the "
+                         "watchdog never fired'")
+
+    def test_the_sink_cancels_with_the_deprecated_call_nowhere_in_sight(self):
+        # psycopg 3.2 deprecated cancel() -- it opens an unencrypted,
+        # unauthenticated connection and takes no timeout, so a stalled
+        # cancel on the watchdog's daemon thread would be invisible. The
+        # fake connection raises on cancel(), so a regression to it fails
+        # loudly instead of passing; this holds the source clean too, since
+        # a call added somewhere the tests never reach would not trip that.
+        self.assertNotIn(
+            "conn.cancel()",
+            pathlib.Path(cs.__file__).read_text(),
+            "the watchdog must call cancel_safe(timeout=...)")
+
     def test_the_watchdog_actually_fires_and_cancels(self):
         # The gap my first pass left: deleting `timer.start()` kept all 61
         # tests green, so nothing proved the watchdog did anything at all. It
@@ -841,16 +982,23 @@ class TestPushRespectsItsBudget(_PushCase):
         # this would mean waiting out a 115-second timer.
         class _Conn:
             def __init__(self):
-                self.cancels = 0
+                self.cancels, self.timeout = 0, None
 
-            def cancel(self):
+            def cancel_safe(self, *, timeout=None):
                 self.cancels += 1
+                self.timeout = timeout
 
         conn = _Conn()
         with cs._watchdog(conn, cs.time.monotonic() - 1) as timer:
             timer.join(2)
             self.assertEqual(conn.cancels, 1,
                              "a spent budget must cancel the transaction")
+            self.assertEqual(conn.timeout, cs.COMMIT_RESERVE_MS / 1000,
+                             "the cancel must be bounded by the only "
+                             "headroom there is, or it can hang the thread")
+            self.assertTrue(timer.fired.is_set(),
+                            "a fired watchdog must say so, because that is "
+                            "what stops the commit")
 
     def test_the_watchdog_is_stopped_even_when_the_push_raises(self):
         # Why the context manager's finally exists. On the happy path the
@@ -895,7 +1043,7 @@ class TestPushRespectsItsBudget(_PushCase):
             def __init__(self):
                 self.cancels = 0
 
-            def cancel(self):
+            def cancel_safe(self, *, timeout=None):
                 self.cancels += 1
 
         conn = _Conn()
@@ -904,13 +1052,16 @@ class TestPushRespectsItsBudget(_PushCase):
         timer.join(1)
         self.assertEqual(conn.cancels, 0,
                          "a stopped watchdog must never cancel")
+        self.assertFalse(timer.fired.is_set(),
+                         "and must not claim it fired, or every healthy run "
+                         "would refuse its own commit")
 
     def test_the_watchdog_survives_a_connection_that_cannot_cancel(self):
         # It runs on a timer thread, so an exception in it would be swallowed
         # by threading and lost. It must log and carry on rather than die
         # silently -- and must not take the process with it.
         class _Conn:
-            def cancel(self):
+            def cancel_safe(self, *, timeout=None):
                 raise RuntimeError("connection already gone")
 
         with self.assertLogs("core_sink", level="ERROR") as logs:

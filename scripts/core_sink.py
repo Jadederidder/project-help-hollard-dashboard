@@ -228,20 +228,64 @@ def _watchdog(conn, deadline):
     might not agree with the dashboard is worse than a refresh that plainly
     did not happen. COMMIT_RESERVE_MS is the headroom for the commit
     instead -- by then every statement has run, so it is the fastest part.
+
+    But Timer.cancel() alone does not deliver that. It only clears the
+    wait: a fire() that has already begun runs to completion regardless, so
+    the main thread could call cancel(), get nothing, and commit while the
+    timer thread cancels underneath it -- exactly the ambiguous outcome the
+    paragraph above says is prevented. The window is not theoretical. The
+    last _bounded() call sets a statement_timeout that expires at the very
+    instant the timer fires, so a statement that uses its whole bound
+    returns just as fire() starts.
+
+    So the exposed timer also carries `fired`, and the shutdown joins the
+    thread and refuses to commit if it is set. Joining matters for the
+    narrower window too: once the timer thread has left its wait, `fired`
+    is a few instructions away from being set, and join() is what makes the
+    main thread see it. A late cancel then produces a rollback and the
+    previous run's rows, which is the outcome this design wanted all along.
     """
     seconds = max(deadline - time.monotonic() - COMMIT_RESERVE_MS / 1000, 0)
+    fired = threading.Event()
 
     def fire():
+        # Set FIRST, ahead of anything that can block, log or raise. The
+        # main thread reads it to decide whether committing is still safe,
+        # so it has to be true from the moment the callback starts running,
+        # not from the moment it finishes.
+        fired.set()
         logger.error("CRM sink: %ss budget spent; cancelling the transaction "
                      "so the dashboard's commit and deploy still run",
                      SINK_BUDGET_SECONDS)
         try:
-            conn.cancel()
+            # cancel_safe(), not the cancel() this used to call, which
+            # psycopg deprecated in 3.2. cancel() goes through libpq's
+            # legacy cancel request: it opens a fresh connection that
+            # PostgreSQL's own docs describe as neither encrypted nor
+            # authenticated, and it takes no timeout, so on this daemon
+            # thread a stalled cancel would be invisible -- a watchdog that
+            # hangs instead of cancelling is no watchdog. cancel_safe uses
+            # libpq 17's secure, interruptible cancel and honours a
+            # timeout; the commit reserve is the only headroom there is, so
+            # that is the timeout. On an older libpq it falls back to the
+            # legacy call and the timeout does nothing, which is no worse
+            # than what it replaced -- and does not arise here, because
+            # psycopg[binary]==3.2.3 ships libpq 17 (checked: pq.version()
+            # reports 170000).
+            #
+            # Measured, not assumed. Against the same throwaway cluster, a
+            # cancel_safe(timeout=5.0) called from a threading.Timer while
+            # the main thread sat in `select pg_sleep(30)` ended that
+            # statement with 57014 "canceling statement due to user
+            # request" after 304ms, and the main thread saw the flag set.
+            # So this is the mechanism that makes the budget a real bound.
+            conn.cancel_safe(timeout=COMMIT_RESERVE_MS / 1000)
         except Exception:               # noqa: BLE001 - nothing left to try
             logger.exception("CRM sink: cancelling the transaction failed")
 
     timer = threading.Timer(seconds, fire)
     timer.daemon = True                 # must never hold the process open
+    timer.fired = fired
     timer.start()
     try:
         yield timer
@@ -266,19 +310,29 @@ def _bounded(cur, deadline, label):
     figure only shrinks, the total cannot run past the deadline.
 
     The transaction-local scope reverts at the end of the transaction, so
-    this never leaks onto a pooled connection. Verified on the live
-    PostgreSQL 17 server rather than asserted, since the fake driver cannot
-    establish server behaviour:
+    this never leaks onto a pooled connection. None of that is asserted --
+    a fake driver cannot establish server behaviour, so it was measured.
+
+    On the live PostgreSQL 17 server, over psql:
 
       before anything                     -> 2min  (the session default)
       after set_config(..., true)         -> 5s    (so it takes effect)
       after that transaction rolled back  -> 2min  (so it reverts)
 
-    The revert-after-COMMIT half is the documented meaning of is_local and
-    is not separately verified here; neither is the psycopg driver path,
-    because this container has no psycopg and no disposable Postgres. That
-    gap is why the test fake refuses the form PostgreSQL rejects instead of
-    trusting that the call is right.
+    and then, through psycopg 3.2.3 itself against a throwaway PostgreSQL
+    16.15 cluster, which closes the three things that psql run could not
+    show -- the driver path, the bound actually biting, and the revert
+    after a COMMIT rather than after a rollback:
+
+      set local statement_timeout = %s    -> 42601 syntax error at "$1"
+      set_config('statement_timeout', %s, true) -> accepted, shows 5s
+      150ms bound, then select pg_sleep(5) -> 57014 cancelled at 151ms
+      show, set_config(150ms), COMMIT, show -> 0, 150ms, 0
+
+    The last line is the one that matters for a pooled connection: the
+    bound is gone after the commit, not only after a rollback. The 57014
+    is the one that matters for the budget: the bound is a real stop, not
+    a number the server merely accepts.
 
     There is deliberately no "no deadline" mode. An earlier version took
     deadline=None and returned silently, which is the same shape as every
@@ -489,9 +543,21 @@ def push(payload) -> bool:
                    len({r[0] for r in raf}), "hollard_raf_claims",
                    deadline)
 
-        # Every statement has run, so the watchdog's job is done. Stop it
-        # before the commit, so a cancel can never land on the commit itself.
+        # Every statement has run, so the watchdog's job is done. Stopping
+        # it is not enough on its own: Timer.cancel() cannot stop a fire()
+        # that has already begun, so join the thread and then refuse to
+        # commit if it fired. A cancel landing on the COMMIT is the one
+        # outcome this whole arrangement exists to avoid, and the join is
+        # bounded by the same reserve the commit gets.
         watchdog.cancel()
+        watchdog.join(COMMIT_RESERVE_MS / 1000)
+        if watchdog.fired.is_set():
+            raise RuntimeError(
+                "CRM sink: the budget watchdog fired as the last statement "
+                "finished, so the transaction is being cancelled; refusing "
+                "to commit on top of that cancel, which leaves the CRM on "
+                "the previous run rather than on a snapshot nobody can "
+                "vouch for")
         conn.commit()
 
     logger.info("CRM sink: written")
