@@ -1,16 +1,16 @@
 {
-  "lastUpdated": "2026-10-31T09:52:47Z",
+  "lastUpdated": "2026-11-01T10:20:49Z",
   "views": {
     "AIP": {
       "kpis": {
-        "latestMonth": "Sep 2026",
+        "latestMonth": "Oct 2026",
         "monthly": {
-          "usage": 248,
-          "monthlyDownloads": 275,
-          "activeApps": 6833
+          "usage": 256,
+          "monthlyDownloads": 274,
+          "activeApps": 6856
         },
         "allTime": {
-          "cumulativeDownloads": 18503,
+          "cumulativeDownloads": 18777,
           "cumulativeCallouts": 18347,
           "totalPanics": 2598
         }
@@ -843,6 +843,18 @@
           "downloadsToBasePct": 28.88,
           "usage": 248,
           "usagePerDownloadsPct": 1.05
+        },
+        {
+          "month": "Oct 2026",
+          "monthSort": "2026-10",
+          "monthlyDownloads": 274,
+          "activeCustomers": 6856,
+          "totalDownloads": 274,
+          "adoptionPct": 35.44,
+          "baseSize": 23574,
+          "downloadsToBasePct": 29.08,
+          "usage": 256,
+          "usagePerDownloadsPct": 1.09
         }
       ],
       "daily": [
@@ -21504,14 +21516,14 @@
     },
     "SBMAC": {
       "kpis": {
-        "latestMonth": "Sep 2026",
+        "latestMonth": "Oct 2026",
         "monthly": {
-          "usage": 210,
-          "monthlyDownloads": 107,
-          "activeApps": 3232
+          "usage": 206,
+          "monthlyDownloads": 106,
+          "activeApps": 3203
         },
         "allTime": {
-          "cumulativeDownloads": 8558,
+          "cumulativeDownloads": 8664,
           "cumulativeCallouts": 12873,
           "totalPanics": 1139
         }
@@ -22332,6 +22344,18 @@
           "downloadsToBasePct": 31.69,
           "usage": 210,
           "usagePerDownloadsPct": 2.06
+        },
+        {
+          "month": "Oct 2026",
+          "monthSort": "2026-10",
+          "monthlyDownloads": 106,
+          "activeCustomers": 3203,
+          "totalDownloads": 106,
+          "adoptionPct": 44.6,
+          "baseSize": 10163,
+          "downloadsToBasePct": 31.52,
+          "usage": 206,
+          "usagePerDownloadsPct": 2.03
         }
       ],
       "daily": [
@@ -37389,6 +37413,13 @@
     {
       "month": "Sep 2026",
       "monthSort": "2026-09",
+      "calls": 3,
+      "valid": 1,
+      "nonValid": null
+    },
+    {
+      "month": "Oct 2026",
+      "monthSort": "2026-10",
       "calls": 3,
       "valid": 1,
       "nonValid": null
